@@ -1,0 +1,25 @@
+<Project>
+  <PropertyGroup>
+    <!-- Use Windows PDBs so OpenCover works -->
+	<DebugType Condition=" '$(Configuration)' == 'Debug' ">Full</DebugType>
+	<DebugType Condition=" '$(Configuration)' == 'Release' ">pdbonly</DebugType>
+	<!-- Use latest C# version. -->
+	<LangVersion>latest</LangVersion>
+	<!-- Use .NET 8+ build structure -->
+	<UseArtifactsOutput>true</UseArtifactsOutput>
+	<ArtifactsPath>$(MSBuildThisFileDirectory).artifacts</ArtifactsPath>
+	<!-- For WASM debugging -->
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>embedded</DebugType>
+	<!-- Common package properties -->
+	<Authors>martycook</Authors>
+	<Company>CodeGator</Company>
+	<Copyright>Copyright © 2002 - 2026 by CodeGator. All rights reserved.</Copyright>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
+	<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+	<!-- Don't Freak Azure Pipelines Out -->
+	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+  </PropertyGroup>
+</Project>

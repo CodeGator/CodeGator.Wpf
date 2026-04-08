@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="../tests/CodeGator.Wpf.UnitTests/CodeGator.Wpf.UnitTests.csproj" Id="32e9c187-250a-41a3-bbec-08d97383ef38" />
+  </Folder>
+  <Project Path="CodeGator.Wpf/CodeGator.Wpf.csproj" Id="c9786a63-362d-428f-a67f-14abfff9b779" />
+</Solution>

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../../src/CodeGator.Wpf/CodeGator.Wpf.csproj" />
+  <Project Path="Sample1.csproj" />
+</Solution>
