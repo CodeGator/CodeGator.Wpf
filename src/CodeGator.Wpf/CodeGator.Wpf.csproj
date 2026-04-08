@@ -1,18 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Description>Wpf controls that are used by other CodeGator solutions</Description>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>packageDefaultIcon-128x128.png</PackageIcon>
+		<PackageProjectUrl>https://github.com/CodeGator/CodeGator.Wpf</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/CodeGator/CodeGator.Wpf</RepositoryUrl>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+	</ItemGroup>
 
 </Project>
