@@ -1,7 +1,7 @@
 ## CodeGator.Wpf: 
 ---
 
-[![Build Status](https://dev.azure.com/codegator/CodeGator.Wpf/_apis/build/status%2FCodeGator.CodeGator.Wpf?branchName=main)](https://dev.azure.com/codegator/CodeGator.Wpf/_build/latest?definitionId=123&branchName=main)
+[![Build Status](https://dev.azure.com/codegator/CodeGator.Wpf/_apis/build/status%2FCodeGator.CodeGator.Wpf?branchName=main)](https://dev.azure.com/codegator/CodeGator.Wpf/_build/latest?definitionId=125&branchName=main)
 
 ![NuGet Version](https://img.shields.io/nuget/v/CodeGator.Wpf)
 
