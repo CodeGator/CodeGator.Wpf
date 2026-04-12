@@ -10,9 +10,15 @@
 		<PackageIcon>packageDefaultIcon-128x128.png</PackageIcon>
 		<PackageProjectUrl>https://github.com/CodeGator/CodeGator.Wpf</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/CodeGator/CodeGator.Wpf</RepositoryUrl>
+		<Title>CodeGator WPF</Title>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Include="..\..\LICENSE.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	  <None Include="..\..\packageDefaultIcon-128x128.png">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
