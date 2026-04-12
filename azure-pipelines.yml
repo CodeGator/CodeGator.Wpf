@@ -6,7 +6,8 @@ pool:
 
 variables:
   BuildConfiguration: 'Debug'
-  SolutionFile: 'src/CodeGator.Wpf.slnx'
+  SolutionName: CodeGator.Wpf
+  SolutionPath: 'src/$(SolutionName)'
   
 steps:
 
@@ -33,21 +34,21 @@ steps:
     nugetConfigPath: 'nuget.config'
     feedsToUse: config
     arguments: '--interactive'
-    projects: '$(SolutionFile)'
+    projects: '$(SolutionPath).slnx'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
     command: 'build'
     arguments: '--configuration $(BuildConfiguration) /p:SourceRevisionId=$(Build.SourceVersion)'
-    projects: '$(SolutionFile)'
+    projects: '$(SolutionPath).slnx'
 
 - task: DotNetCoreCLI@2
   displayName: "dotnet test"
   inputs:
     command: 'test'
-    projects: '$(SolutionFile)'
-    arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+    projects: '$(SolutionPath).slnx'
+    arguments: '--configuration $(BuildConfiguration) --report-trx --results-directory $(Agent.TempDirectory) --coverlet --coverlet-output-format cobertura'
     publishTestResults: true
     nobuild: true
 
@@ -56,7 +57,7 @@ steps:
   inputs:
     command: 'pack'
     arguments: '--configuration $(BuildConfiguration)'    
-    packagesToPack: '$(SolutionFile)'
+    packagesToPack: '$(SolutionPath).slnx'
     nobuild: true
     includesymbols: true
     includesource: true
