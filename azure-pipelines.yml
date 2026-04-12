@@ -48,7 +48,7 @@ steps:
   inputs:
     command: 'test'
     projects: '$(SolutionPath).slnx'
-    arguments: '--configuration $(BuildConfiguration) --report-trx --results-directory $(Agent.TempDirectory) --coverlet --coverlet-output-format cobertura'
+    arguments: '--configuration $(BuildConfiguration) --report-trx --coverlet --coverlet-output-format cobertura'
     publishTestResults: true
     nobuild: true
 
