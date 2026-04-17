@@ -3,12 +3,12 @@ using CodeGator.Wpf;
 namespace CodeGator.Wpf.Layouts;
 
 /// <summary>
-/// This class provides graph topology helpers derived from diagram nodes and edges for layout algorithms.
+/// This class provides graph topology helpers for diagram layout algorithms.
 /// </summary>
 internal static class DiagramGraphTopology
 {
     /// <summary>
-    /// This method builds an adjacency list of outgoing neighbor ids for every known node id.
+    /// This method builds outgoing adjacency lists for each node id in the graph.
     /// </summary>
     public static Dictionary<string, List<string>> BuildOutgoing(IReadOnlyList<CgDiagramNode> nodes, IReadOnlyList<CgDiagramEdge> edges)
     {
@@ -29,7 +29,7 @@ internal static class DiagramGraphTopology
     }
 
     /// <summary>
-    /// This method counts how many edges target each node so roots and cycle handling can be detected.
+    /// This method counts incoming edges per node for root and cycle detection.
     /// </summary>
     public static Dictionary<string, int> BuildInDegree(IReadOnlyList<CgDiagramNode> nodes, IReadOnlyList<CgDiagramEdge> edges)
     {
@@ -46,7 +46,7 @@ internal static class DiagramGraphTopology
     }
 
     /// <summary>
-    /// This method returns node ids with no incoming edges, ordered for stable layout starts.
+    /// This method returns ids with no incoming edges, ordered for stable starts.
     /// </summary>
     public static List<string> Roots(IReadOnlyList<CgDiagramNode> nodes, IReadOnlyList<CgDiagramEdge> edges)
     {
@@ -55,7 +55,7 @@ internal static class DiagramGraphTopology
     }
 
     /// <summary>
-    /// This method assigns each node a non-negative layer index along directed edges using a Kahn-style traversal.
+    /// This method assigns each node a layer using a Kahn-style breadth-first pass.
     /// </summary>
     /// <remarks>
     /// When the graph is entirely cyclic, every node remains on layer zero in a stable order.

@@ -1,37 +1,40 @@
 namespace CodeGator.Wpf.Layouts;
 
 /// <summary>
-/// This enumeration names built-in layout strategies for <see cref="CodeGator.Wpf.CgDiagram"/>.
+/// This enumeration represents built-in layout strategies for diagram controls.
 /// </summary>
+/// <remarks>
+/// Pass values to <see cref="CodeGator.Wpf.CgDiagram"/> layout APIs.
+/// </remarks>
 public enum CgDiagramLayoutKind
 {
     /// <summary>
-    /// This enumeration member orders nodes in breadth-first layers with rows progressing downward.
+    /// This enumeration member lays out breadth-first layers with rows downward.
     /// </summary>
     HierarchicalTopDown,
 
     /// <summary>
-    /// This enumeration member orders nodes in breadth-first layers with columns progressing rightward.
+    /// This enumeration member lays out breadth-first layers with columns rightward.
     /// </summary>
     HierarchicalLeftToRight,
 
     /// <summary>
-    /// This enumeration member places nodes on concentric rings by breadth-first distance from roots.
+    /// This enumeration member places nodes on rings by BFS distance from roots.
     /// </summary>
     Radial,
 
     /// <summary>
-    /// This enumeration member positions nodes using an iterative force-directed simulation.
+    /// This enumeration member uses an iterative force-directed simulation.
     /// </summary>
     ForceDirected,
 
     /// <summary>
-    /// This enumeration member groups nodes into stacked horizontal bands by <see cref="CgDiagramNode.SwimlaneId"/>.
+    /// This enumeration member stacks lanes by <see cref="CgDiagramNode.SwimlaneId"/>.
     /// </summary>
     Swimlanes,
 
     /// <summary>
-    /// This enumeration member distributes all nodes evenly around a single circular ring.
+    /// This enumeration member places all nodes evenly on one circular ring.
     /// </summary>
     CircularRing,
 }

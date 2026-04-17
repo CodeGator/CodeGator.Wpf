@@ -1,22 +1,22 @@
 namespace CodeGator.Wpf;
 
 /// <summary>
-/// This enumeration selects how a diagram node content is presented in the UI.
+/// This enumeration represents how diagram node content is presented in the UI.
 /// </summary>
 public enum CgDiagramNodePresentation
 {
     /// <summary>
-    /// This enumeration member uses the default surface card template with title and description chrome.
+    /// This enumeration member uses the default surface card chrome.
     /// </summary>
     Surface,
 
     /// <summary>
-    /// This enumeration member loads vector content from the path stored in <see cref="CgDiagramNode.SvgSource"/>.
+    /// This enumeration member loads SVG from <see cref="CgDiagramNode.SvgSource"/>.
     /// </summary>
     SvgFile,
 
     /// <summary>
-    /// This enumeration member renders vector geometry from <see cref="CgDiagramNode.SvgPathData"/> path mini-language.
+    /// This enumeration member renders from <see cref="CgDiagramNode.SvgPathData"/>.
     /// </summary>
     SvgPath,
 }

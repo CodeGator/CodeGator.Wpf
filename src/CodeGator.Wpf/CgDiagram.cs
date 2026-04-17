@@ -14,7 +14,7 @@ using CodeGator.Wpf.Layouts;
 namespace CodeGator.Wpf;
 
 /// <summary>
-/// This class is a WPF control that provides an interactive diagram surface for nodes and edges.
+/// This class provides an interactive WPF diagram surface for nodes and edges.
 /// </summary>
 /// <remarks>
 /// The control supports zoom, pan, selection, and routed events for pointer interaction with nodes and edges.
@@ -62,7 +62,7 @@ public sealed class CgDiagram : Control
     const double ClickMoveThreshold = 3.0;
 
     /// <summary>
-    /// This static constructor registers the default style key metadata used when WPF resolves the control template.
+    /// This constructor registers default style metadata before first CgDiagram use.
     /// </summary>
     static CgDiagram()
     {
@@ -70,8 +70,11 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This constructor creates the diagram control, enables focus, and subscribes to loaded and unloaded events.
+    /// This constructor initializes a new instance of the CgDiagram class.
     /// </summary>
+    /// <remarks>
+    /// Sets focusability, and on load refreshes subscriptions and edges; on unload unsubscribes listeners.
+    /// </remarks>
     public CgDiagram()
     {
         Focusable = true;
@@ -80,13 +83,13 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This event exposes the registered bubbling identifier for <see cref="NodeClick"/>.
+    /// This field holds the routed event identifier for <see cref="NodeClick"/>.
     /// </summary>
     public static readonly RoutedEvent NodeClickEvent =
         EventManager.RegisterRoutedEvent(nameof(NodeClick), RoutingStrategy.Bubble, typeof(EventHandler<CgDiagramNodeEventArgs>), typeof(CgDiagram));
 
     /// <summary>
-    /// This event bubbles after the user completes a primary-button press on a node without dragging.
+    /// This event fires after a primary click on a node that was not a drag.
     /// </summary>
     /// <remarks>
     /// Handlers receive <see cref="CgDiagramNodeEventArgs"/> with the node and pointer position.
@@ -98,13 +101,13 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This event exposes the registered bubbling identifier for <see cref="NodeRightClick"/>.
+    /// This field holds the routed event identifier for <see cref="NodeRightClick"/>.
     /// </summary>
     public static readonly RoutedEvent NodeRightClickEvent =
         EventManager.RegisterRoutedEvent(nameof(NodeRightClick), RoutingStrategy.Bubble, typeof(EventHandler<CgDiagramNodeEventArgs>), typeof(CgDiagram));
 
     /// <summary>
-    /// This event bubbles when the user secondary-clicks a diagram node while that gesture is not starting a pan.
+    /// This event fires on secondary click on a node when not starting a pan.
     /// </summary>
     /// <remarks>
     /// Handlers receive <see cref="CgDiagramNodeEventArgs"/> with the node and pointer position.
@@ -116,13 +119,13 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This event exposes the registered bubbling identifier for <see cref="EdgeClick"/>.
+    /// This field holds the routed event identifier for <see cref="EdgeClick"/>.
     /// </summary>
     public static readonly RoutedEvent EdgeClickEvent =
         EventManager.RegisterRoutedEvent(nameof(EdgeClick), RoutingStrategy.Bubble, typeof(EventHandler<CgDiagramEdgeEventArgs>), typeof(CgDiagram));
 
     /// <summary>
-    /// This event bubbles after the user primary-clicks a connector hit target.
+    /// This event fires after a primary click on a connector hit target.
     /// </summary>
     /// <remarks>
     /// Handlers receive <see cref="CgDiagramEdgeEventArgs"/> with the edge and pointer position.
@@ -134,13 +137,13 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This event exposes the registered bubbling identifier for <see cref="EdgeRightClick"/>.
+    /// This field holds the routed event identifier for <see cref="EdgeRightClick"/>.
     /// </summary>
     public static readonly RoutedEvent EdgeRightClickEvent =
         EventManager.RegisterRoutedEvent(nameof(EdgeRightClick), RoutingStrategy.Bubble, typeof(EventHandler<CgDiagramEdgeEventArgs>), typeof(CgDiagram));
 
     /// <summary>
-    /// This event bubbles when the user secondary-clicks a connector hit target.
+    /// This event fires on secondary click on a connector hit target.
     /// </summary>
     /// <remarks>
     /// Handlers receive <see cref="CgDiagramEdgeEventArgs"/> with the edge and pointer position.
@@ -152,7 +155,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method locates named template parts and triggers a full subscription and edge refresh pass.
+    /// This method finds template parts and refreshes subscriptions and edge visuals.
     /// </summary>
     public override void OnApplyTemplate()
     {
@@ -165,7 +168,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method opens the print dialog and renders the entire diagram content to the selected printer.
+    /// This method prints the diagram through the system print dialog.
     /// </summary>
     /// <remarks>
     /// Zoom and pan are temporarily reset so printing reflects the full graph, then the previous view state is restored.
@@ -246,7 +249,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This property gets or sets the layout kind used when callers invoke <see cref="ApplyLayout(CgDiagramLayoutKind?, ICgDiagramLayout?)"/> without overriding it.
+    /// This property is the fallback layout kind for <see cref="ApplyLayout"/> calls.
     /// </summary>
     public CgDiagramLayoutKind Layout
     {
@@ -265,8 +268,10 @@ public sealed class CgDiagram : Control
             new PropertyMetadata(CgDiagramLayoutKind.HierarchicalTopDown));
 
     /// <summary>
-    /// This method arranges nodes using a built-in or custom layout and updates connector geometry afterward.
+    /// This method runs a layout pass on nodes and refreshes connector geometry.
     /// </summary>
+    /// <param name="kind">Optional strategy; defaults to <see cref="Layout"/>.</param>
+    /// <param name="layout">Optional custom algorithm; defaults to a built-in for the resolved kind.</param>
     public void ApplyLayout(CgDiagramLayoutKind? kind = null, ICgDiagramLayout? layout = null)
     {
         var nodes = (Nodes as IEnumerable)?.OfType<CgDiagramNode>().ToList() ?? new List<CgDiagramNode>();
@@ -292,7 +297,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This property exposes the bound collection of <see cref="CgDiagramNode"/> instances rendered on the surface.
+    /// This property binds the <see cref="CgDiagramNode"/> items shown on the surface.
     /// </summary>
     public IEnumerable? Nodes
     {
@@ -311,7 +316,7 @@ public sealed class CgDiagram : Control
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, (d, _) => ((CgDiagram)d).OnNodesChanged()));
 
     /// <summary>
-    /// This method reacts to the nodes collection dependency property changing by refreshing hooks and edges.
+    /// This method refreshes hooks and edges when the nodes collection changes.
     /// </summary>
     void OnNodesChanged()
     {
@@ -319,7 +324,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This property exposes the bound collection of <see cref="CgDiagramEdge"/> instances connecting nodes.
+    /// This property binds the <see cref="CgDiagramEdge"/> items drawn as connectors.
     /// </summary>
     public IEnumerable? Edges
     {
@@ -338,7 +343,7 @@ public sealed class CgDiagram : Control
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, (d, _) => ((CgDiagram)d).OnEdgesChanged()));
 
     /// <summary>
-    /// This method reacts to the edges collection dependency property changing by refreshing hooks and edges.
+    /// This method refreshes hooks and edges when the edges collection changes.
     /// </summary>
     void OnEdgesChanged()
     {
@@ -346,7 +351,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This property supplies the data template used for each item in the nodes items control.
+    /// This property holds the data template for each node in the items control.
     /// </summary>
     public DataTemplate? NodeTemplate
     {
@@ -361,7 +366,7 @@ public sealed class CgDiagram : Control
         DependencyProperty.Register(nameof(NodeTemplate), typeof(DataTemplate), typeof(CgDiagram), new PropertyMetadata(null));
 
     /// <summary>
-    /// This property toggles whether a background grid renders behind diagram content.
+    /// This property enables or disables the background grid behind content.
     /// </summary>
     public bool ShowGrid
     {
@@ -376,7 +381,7 @@ public sealed class CgDiagram : Control
         DependencyProperty.Register(nameof(ShowGrid), typeof(bool), typeof(CgDiagram), new PropertyMetadata(false));
 
     /// <summary>
-    /// This property defines the stroke brush applied to the background grid lines.
+    /// This property sets the brush for background grid lines.
     /// </summary>
     public Brush? GridBrush
     {
@@ -406,7 +411,7 @@ public sealed class CgDiagram : Control
         DependencyProperty.Register(nameof(GridOpacity), typeof(double), typeof(CgDiagram), new PropertyMetadata(0.35));
 
     /// <summary>
-    /// This property gets or sets the diagram zoom factor applied through layout transforms.
+    /// This property gets or sets zoom applied through layout transforms.
     /// </summary>
     public double Zoom
     {
@@ -485,7 +490,7 @@ public sealed class CgDiagram : Control
         DependencyProperty.Register(nameof(PanY), typeof(double), typeof(CgDiagram), new PropertyMetadata(0.0));
 
     /// <summary>
-    /// This property defines the brush used to stroke connector lines in their default state.
+    /// This property sets the default stroke brush for connector lines.
     /// </summary>
     public Brush EdgeStroke
     {
@@ -500,7 +505,7 @@ public sealed class CgDiagram : Control
         DependencyProperty.Register(nameof(EdgeStroke), typeof(Brush), typeof(CgDiagram), new PropertyMetadata(new SolidColorBrush(Color.FromArgb(0x99, 0xFF, 0xFF, 0xFF)), (d, _) => ((CgDiagram)d).RefreshEdges()));
 
     /// <summary>
-    /// This property controls the pixel thickness of visible connector strokes.
+    /// This property sets the stroke thickness of connector lines in pixels.
     /// </summary>
     public double EdgeThickness
     {
@@ -515,7 +520,7 @@ public sealed class CgDiagram : Control
         DependencyProperty.Register(nameof(EdgeThickness), typeof(double), typeof(CgDiagram), new PropertyMetadata(1.25, (d, _) => ((CgDiagram)d).RefreshEdges()));
 
     /// <summary>
-    /// This property defines a node-local reference point available to templates for aligning adorners and overlays.
+    /// This property sets a template anchor point for node adorners and overlays.
     /// </summary>
     public Point NodeAnchor
     {
@@ -530,7 +535,7 @@ public sealed class CgDiagram : Control
         DependencyProperty.Register(nameof(NodeAnchor), typeof(Point), typeof(CgDiagram), new PropertyMetadata(new Point(80, 22), (d, _) => ((CgDiagram)d).RefreshEdges()));
 
     /// <summary>
-    /// This property supplies the default width and height assumptions used for connectors and layout padding when nodes omit explicit measurements.
+    /// This property holds default node size when nodes do not supply explicit bounds.
     /// </summary>
     public Size NodeSize
     {
@@ -545,7 +550,7 @@ public sealed class CgDiagram : Control
         DependencyProperty.Register(nameof(NodeSize), typeof(Size), typeof(CgDiagram), new PropertyMetadata(new Size(160, 56), (d, _) => ((CgDiagram)d).RefreshEdges()));
 
     /// <summary>
-    /// This property pads the measured diagram bounds when computing scrollable <see cref="ContentWidth"/> and <see cref="ContentHeight"/>.
+    /// This property pads measured bounds before computing scrollable width and height.
     /// </summary>
     public Thickness ContentPadding
     {
@@ -560,7 +565,7 @@ public sealed class CgDiagram : Control
         DependencyProperty.Register(nameof(ContentPadding), typeof(Thickness), typeof(CgDiagram), new PropertyMetadata(new Thickness(40), (d, _) => ((CgDiagram)d).RefreshEdges()));
 
     /// <summary>
-    /// This property exposes the computed scrollable width of diagram content including padding.
+    /// This property gets the scrollable content width including padding.
     /// </summary>
     public double ContentWidth
     {
@@ -569,18 +574,18 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This property holds the key registered for the read-only <see cref="ContentWidth"/> dependency property.
+    /// This field holds the key for the read-only <see cref="ContentWidth"/> property.
     /// </summary>
     static readonly DependencyPropertyKey ContentWidthPropertyKey =
         DependencyProperty.RegisterReadOnly(nameof(ContentWidth), typeof(double), typeof(CgDiagram), new PropertyMetadata(0.0));
 
     /// <summary>
-    /// This property identifies the public <see cref="ContentWidth"/> dependency property.
+    /// This field identifies the <see cref="ContentWidth"/> dependency property.
     /// </summary>
     public static readonly DependencyProperty ContentWidthProperty = ContentWidthPropertyKey.DependencyProperty;
 
     /// <summary>
-    /// This property exposes the computed scrollable height of diagram content including padding.
+    /// This property gets the scrollable content height including padding.
     /// </summary>
     public double ContentHeight
     {
@@ -589,18 +594,18 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This property holds the key registered for the read-only <see cref="ContentHeight"/> dependency property.
+    /// This field holds the key for the read-only <see cref="ContentHeight"/> property.
     /// </summary>
     static readonly DependencyPropertyKey ContentHeightPropertyKey =
         DependencyProperty.RegisterReadOnly(nameof(ContentHeight), typeof(double), typeof(CgDiagram), new PropertyMetadata(0.0));
 
     /// <summary>
-    /// This property identifies the public <see cref="ContentHeight"/> dependency property.
+    /// This field identifies the <see cref="ContentHeight"/> dependency property.
     /// </summary>
     public static readonly DependencyProperty ContentHeightProperty = ContentHeightPropertyKey.DependencyProperty;
 
     /// <summary>
-    /// This method clamps zoom to configured bounds and rebuilds edge visuals when zoom-related properties change.
+    /// This method clamps zoom to min and max values and refreshes edge visuals.
     /// </summary>
     void CoerceAndRefresh()
     {
@@ -613,8 +618,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method adjusts zoom from a preview wheel event before the scroll viewer consumes it.
+    /// This method handles preview wheel input to adjust zoom before the scroll viewer.
     /// </summary>
+    /// <param name="e">The mouse wheel event arguments.</param>
     protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
     {
         // ScrollViewer handles wheel by default; use Preview to keep zoom working.
@@ -625,8 +631,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method adjusts zoom when the mouse wheel bubbles without being handled earlier.
+    /// This method adjusts zoom from bubbled mouse wheel input.
     /// </summary>
+    /// <param name="e">The mouse wheel event arguments.</param>
     protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
         base.OnMouseWheel(e);
@@ -636,8 +643,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method forwards early mouse down input to shared hit testing before child controls mark it handled.
+    /// This method handles preview mouse down before children mark events handled.
     /// </summary>
+    /// <param name="e">The mouse button event arguments.</param>
     protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
     {
         // ScrollViewer can mark mouse input as handled; grab it early.
@@ -646,8 +654,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method forwards mouse down input after preview handling when interaction should still reach the diagram.
+    /// This method handles mouse down that reaches the control after preview routing.
     /// </summary>
+    /// <param name="e">The mouse button event arguments.</param>
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
@@ -655,8 +664,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method interprets mouse down actions to begin panning, dragging, marquee selection, or context clicks.
+    /// This method starts pan, drag, marquee, or context actions from mouse down.
     /// </summary>
+    /// <param name="e">The mouse button event arguments.</param>
     void HandleMouseDown(MouseButtonEventArgs e)
     {
         if (e.Handled)
@@ -717,8 +727,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method routes move notifications to the shared drag, pan, and marquee update logic.
+    /// This method forwards move input to drag, pan, and marquee handling.
     /// </summary>
+    /// <param name="e">The mouse event arguments.</param>
     protected override void OnMouseMove(MouseEventArgs e)
     {
         base.OnMouseMove(e);
@@ -726,8 +737,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method updates marquee rectangles, detects click versus drag, pans the surface, or moves the active node.
+    /// This method updates marquee, pan, or drag state for the current pointer move.
     /// </summary>
+    /// <param name="e">The mouse event arguments.</param>
     void HandleMouseMove(MouseEventArgs e)
     {
         if (e.Handled)
@@ -771,8 +783,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method completes pointer operations initiated during preview mouse down handling.
+    /// This method completes pointer operations started during preview mouse down.
     /// </summary>
+    /// <param name="e">The mouse button event arguments.</param>
     protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
     {
         base.OnPreviewMouseUp(e);
@@ -780,8 +793,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method completes pointer operations when mouse up arrives without preview interception.
+    /// This method completes pointer operations when mouse up bubbles normally.
     /// </summary>
+    /// <param name="e">The mouse button event arguments.</param>
     protected override void OnMouseUp(MouseButtonEventArgs e)
     {
         base.OnMouseUp(e);
@@ -789,8 +803,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method finalizes marquee selection, panning, or node clicks after mouse capture ends.
+    /// This method ends marquee, pan, drag, or click gestures on mouse up.
     /// </summary>
+    /// <param name="e">The mouse button event arguments.</param>
     void HandleMouseUp(MouseButtonEventArgs e)
     {
         if (e.Handled)
@@ -837,8 +852,11 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method walks the visual tree from a hit target to find a data context bound to <see cref="CgDiagramNode"/>.
+    /// This method finds a <see cref="CgDiagramNode"/> from a hit-test target upward.
     /// </summary>
+    /// <param name="original">The original source of the input event.</param>
+    /// <param name="node">The node found in the visual tree, if any.</param>
+    /// <returns>True when a node data context is found; otherwise false.</returns>
     static bool TryGetNodeFromOriginalSource(DependencyObject? original, out CgDiagramNode node)
     {
         node = null!;
@@ -854,8 +872,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method updates hover highlighting when the cursor enters the diagram's bounds.
+    /// This method updates hover state when the pointer enters the control.
     /// </summary>
+    /// <param name="e">The mouse event arguments.</param>
     protected override void OnMouseEnter(MouseEventArgs e)
     {
         base.OnMouseEnter(e);
@@ -863,8 +882,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method clears hover state when the cursor leaves the diagram's bounds.
+    /// This method clears hover state when the pointer leaves the control.
     /// </summary>
+    /// <param name="e">The mouse event arguments.</param>
     protected override void OnMouseLeave(MouseEventArgs e)
     {
         base.OnMouseLeave(e);
@@ -872,8 +892,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method refreshes hover targets and continues drag or marquee handling during preview move events.
+    /// This method updates hover on preview move and forwards drag or marquee input.
     /// </summary>
+    /// <param name="e">The mouse event arguments.</param>
     protected override void OnPreviewMouseMove(MouseEventArgs e)
     {
         base.OnPreviewMouseMove(e);
@@ -882,8 +903,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method sets <see cref="CgDiagramNode.IsHovered"/> on nodes according to the element currently under the pointer.
+    /// This method updates <see cref="CgDiagramNode.IsHovered"/> from the hit target.
     /// </summary>
+    /// <param name="e">The mouse event arguments.</param>
     void UpdateHoverNode(MouseEventArgs e)
     {
         if (Nodes is null) return;
@@ -898,7 +920,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method clears hover flags on every node when the pointer is no longer over a node visual.
+    /// This method clears hover on all nodes when none are under the pointer.
     /// </summary>
     void ClearHoverNodes()
     {
@@ -913,8 +935,10 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method maps a point from control coordinates into the scrollable content grid's coordinate space.
+    /// This method maps a control point into scrollable content grid coordinates.
     /// </summary>
+    /// <param name="controlPoint">A point in control coordinates.</param>
+    /// <returns>The corresponding point in content space.</returns>
     Point ToContentPoint(Point controlPoint)
     {
         // Use WPF's visual transforms to map from the control into content coordinates.
@@ -936,7 +960,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method creates the marquee rectangle on the overlay canvas when it is missing.
+    /// This method creates the marquee overlay rectangle when missing.
     /// </summary>
     void EnsureMarqueeVisual()
     {
@@ -962,7 +986,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method positions and sizes the marquee rectangle to match the current drag selection in overlay space.
+    /// This method sizes and positions the marquee for the current drag selection.
     /// </summary>
     void UpdateMarqueeVisual()
     {
@@ -1007,7 +1031,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method hides the marquee overlay after a selection gesture completes.
+    /// This method hides the marquee after a selection gesture completes.
     /// </summary>
     void HideMarqueeVisual()
     {
@@ -1018,7 +1042,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method selects nodes intersecting the marquee rectangle and clears edge selection.
+    /// This method selects nodes inside the marquee and clears edge selection.
     /// </summary>
     /// <remarks>
     /// A very small marquee clears all node and edge selection instead of performing a box hit test.
@@ -1099,7 +1123,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method reconnects collection and property listeners after the control loads or collections change.
+    /// This method hooks collections and properties and refreshes edge visuals.
     /// </summary>
     void RefreshSubscriptionsAndEdges()
     {
@@ -1114,8 +1138,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method selects exactly one node and clears selection on all other nodes and edges.
+    /// This method selects one node and clears selection on all other items.
     /// </summary>
+    /// <param name="node">The node to mark as selected.</param>
     void SelectNode(CgDiagramNode node)
     {
         if (Nodes is not null)
@@ -1144,8 +1169,9 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method selects exactly one edge and clears selection on every node and other edges.
+    /// This method selects one edge and clears selection on nodes and other edges.
     /// </summary>
+    /// <param name="edge">The edge to mark as selected.</param>
     void SelectEdge(CgDiagramEdge edge)
     {
         if (Edges is not null)
@@ -1174,7 +1200,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method attaches collection changed handlers to the current nodes and edges enumerations.
+    /// This method subscribes to collection changes on nodes and edges.
     /// </summary>
     void HookCollections()
     {
@@ -1203,8 +1229,10 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method refreshes node property hooks and redraws connectors whenever the nodes collection mutates.
+    /// This method refreshes node hooks and redraws connectors when nodes change.
     /// </summary>
+    /// <param name="sender">The collection that raised the event.</param>
+    /// <param name="e">Details about the collection change.</param>
     void OnNodesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         HookNodePositionChanges();
@@ -1212,15 +1240,17 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method redraws connectors whenever the edges collection mutates.
+    /// This method redraws connectors when the edges collection changes.
     /// </summary>
+    /// <param name="sender">The collection that raised the event.</param>
+    /// <param name="e">Details about the collection change.</param>
     void OnEdgesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         RefreshEdges();
     }
 
     /// <summary>
-    /// This method rebinds property changed handlers so connector geometry follows individual node moves.
+    /// This method subscribes to node property changes that affect connector geometry.
     /// </summary>
     void HookNodePositionChanges()
     {
@@ -1253,7 +1283,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method rebuilds all connector visuals, hit targets, and content extent measurements from current model state.
+    /// This method rebuilds connectors, hit tests, and scroll extent from the model.
     /// </summary>
     void RefreshEdges()
     {
@@ -1381,7 +1411,7 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This method removes collection and property listeners when the control unloads to avoid leaks.
+    /// This method unsubscribes listeners when the control unloads.
     /// </summary>
     void UnsubscribeAll()
     {

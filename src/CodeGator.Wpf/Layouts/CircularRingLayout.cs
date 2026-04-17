@@ -8,9 +8,7 @@ namespace CodeGator.Wpf.Layouts;
 /// </summary>
 internal sealed class CircularRingLayout : ICgDiagramLayout
 {
-    /// <summary>
-    /// This method distributes nodes evenly around a single ring sized from the node count and spacing options.
-    /// </summary>
+    /// <inheritdoc />
     public IReadOnlyDictionary<string, Point> Compute(IReadOnlyList<CgDiagramNode> nodes, IReadOnlyList<CgDiagramEdge> edges, CgDiagramLayoutOptions options)
     {
         var result = new Dictionary<string, Point>(StringComparer.Ordinal);

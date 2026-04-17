@@ -4,13 +4,11 @@ using CodeGator.Wpf;
 namespace CodeGator.Wpf.Layouts;
 
 /// <summary>
-/// This class arranges nodes in stacked horizontal lanes grouped by <see cref="CgDiagramNode.SwimlaneId"/>.
+/// This class stacks horizontal lanes by <see cref="CgDiagramNode.SwimlaneId"/>.
 /// </summary>
 internal sealed class SwimlaneLayout : ICgDiagramLayout
 {
-    /// <summary>
-    /// This method lays out nodes in rows separated by swimlane identifier while preserving order within each lane.
-    /// </summary>
+    /// <inheritdoc />
     public IReadOnlyDictionary<string, Point> Compute(IReadOnlyList<CgDiagramNode> nodes, IReadOnlyList<CgDiagramEdge> edges, CgDiagramLayoutOptions options)
     {
         var result = new Dictionary<string, Point>(StringComparer.Ordinal);

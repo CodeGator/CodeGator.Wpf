@@ -4,13 +4,11 @@ using CodeGator.Wpf;
 namespace CodeGator.Wpf.Layouts;
 
 /// <summary>
-/// This class positions nodes on concentric rings according to breadth-first distance from roots.
+/// This class positions nodes on concentric rings by BFS distance from roots.
 /// </summary>
 internal sealed class RadialLayout : ICgDiagramLayout
 {
-    /// <summary>
-    /// This method calculates radial ring positions from breadth-first layers and normalizes them to the content plane.
-    /// </summary>
+    /// <inheritdoc />
     public IReadOnlyDictionary<string, Point> Compute(IReadOnlyList<CgDiagramNode> nodes, IReadOnlyList<CgDiagramEdge> edges, CgDiagramLayoutOptions options)
     {
         var result = new Dictionary<string, Point>(StringComparer.Ordinal);
@@ -55,7 +53,7 @@ internal sealed class RadialLayout : ICgDiagramLayout
     }
 
     /// <summary>
-    /// This method translates all positions so the minimum x and y coordinates are non-negative.
+    /// This method shifts positions so the minimum x and y values are non-negative.
     /// </summary>
     static void NormalizeToPositive(Dictionary<string, Point> map)
     {

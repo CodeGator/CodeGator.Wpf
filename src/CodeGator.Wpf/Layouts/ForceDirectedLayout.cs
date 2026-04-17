@@ -11,9 +11,7 @@ namespace CodeGator.Wpf.Layouts;
 /// </remarks>
 internal sealed class ForceDirectedLayout : ICgDiagramLayout
 {
-    /// <summary>
-    /// This method simulates attracting and repelling forces to settle nodes, then converts vectors to top-left coordinates.
-    /// </summary>
+    /// <inheritdoc />
     public IReadOnlyDictionary<string, Point> Compute(IReadOnlyList<CgDiagramNode> nodes, IReadOnlyList<CgDiagramEdge> edges, CgDiagramLayoutOptions options)
     {
         var result = new Dictionary<string, Point>(StringComparer.Ordinal);
@@ -103,7 +101,7 @@ internal sealed class ForceDirectedLayout : ICgDiagramLayout
     }
 
     /// <summary>
-    /// This method translates all positions so the minimum x and y coordinates are non-negative.
+    /// This method shifts positions so the minimum x and y values are non-negative.
     /// </summary>
     static void NormalizeToPositive(Dictionary<string, Point> map)
     {

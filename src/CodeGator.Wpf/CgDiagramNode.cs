@@ -5,7 +5,7 @@ using System.Windows;
 namespace CodeGator.Wpf;
 
 /// <summary>
-/// This class represents a diagram vertex with stable identity, labels, and a two-dimensional position.
+/// This class represents a diagram vertex with identity, labels, and 2D position.
 /// </summary>
 /// <remarks>
 /// Instances can carry presentation hints, swimlane grouping, SVG path or file sources, and surface sizing, and they notify property changes for selection and hover.
@@ -13,8 +13,11 @@ namespace CodeGator.Wpf;
 public sealed class CgDiagramNode : INotifyPropertyChanged
 {
     /// <summary>
-    /// This method creates a node with the given identifier, primary label, and optional description text.
+    /// This constructor initializes a new instance of the CgDiagramNode class.
     /// </summary>
+    /// <param name="id">The stable identifier referenced by edges and layout results.</param>
+    /// <param name="label">The primary title shown on the node surface.</param>
+    /// <param name="description">Optional body text for surface presentation.</param>
     public CgDiagramNode(string id, string label, string? description = null)
     {
         Id = id;
@@ -23,7 +26,7 @@ public sealed class CgDiagramNode : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// This property exposes the stable identifier referenced by edges and layout dictionaries.
+    /// This property holds the stable id referenced by edges and layout dictionaries.
     /// </summary>
     public string Id { get; }
 
@@ -33,7 +36,7 @@ public sealed class CgDiagramNode : INotifyPropertyChanged
     public string Label { get; }
 
     /// <summary>
-    /// This property carries optional body text rendered beneath the title when presentation is a surface card.
+    /// This property holds optional body text under the title for surface presentation.
     /// </summary>
     public string? Description { get; }
 
@@ -48,27 +51,33 @@ public sealed class CgDiagramNode : INotifyPropertyChanged
     public CgDiagramNodePresentation Presentation { get; set; } = CgDiagramNodePresentation.Surface;
 
     /// <summary>
-    /// This property supplies SVG path mini-language data when <see cref="Presentation"/> is <see cref="CgDiagramNodePresentation.SvgPath"/>.
+    /// This property holds SVG path data when <see cref="Presentation"/> is SvgPath.
     /// </summary>
+    /// <remarks>
+    /// Used when <see cref="Presentation"/> is <see cref="CgDiagramNodePresentation.SvgPath"/>.
+    /// </remarks>
     public string? SvgPathData { get; set; }
 
     /// <summary>
-    /// This property supplies pack, relative, or absolute SVG locations when <see cref="Presentation"/> is <see cref="CgDiagramNodePresentation.SvgFile"/>.
+    /// This property holds SVG source paths or URIs when presentation is SvgFile.
     /// </summary>
+    /// <remarks>
+    /// Used when <see cref="Presentation"/> is <see cref="CgDiagramNodePresentation.SvgFile"/>.
+    /// </remarks>
     public string? SvgSource { get; set; }
 
     /// <summary>
-    /// This property overrides measured width and height together when layout and hit-testing need explicit bounds.
+    /// This property sets explicit width and height for layout and hit-testing.
     /// </summary>
     public Size? Size { get; set; }
 
     /// <summary>
-    /// This property sets the node width used for layout padding and marquee hit-testing when <see cref="Size"/> is null.
+    /// This property sets width for layout and marquee when <see cref="Size"/> is null.
     /// </summary>
     public double Width { get; set; } = 168;
 
     /// <summary>
-    /// This property sets the node height used for layout padding and marquee hit-testing when <see cref="Size"/> is null.
+    /// This property sets height for layout and marquee if <see cref="Size"/> is null.
     /// </summary>
     /// <remarks>
     /// The default fits a title plus wrapped description for surface nodes without clipping.
@@ -92,14 +101,14 @@ public sealed class CgDiagramNode : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// This event is raised when a bindable property on the node changes for MVVM consumers.
+    /// This event fires when a bindable property on the node changes.
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
 
     bool _isSelected;
 
     /// <summary>
-    /// This property tracks whether the node is the active selection for keyboard or click routing.
+    /// This property indicates whether the node is selected for keyboard and clicks.
     /// </summary>
     public bool IsSelected
     {
@@ -115,7 +124,7 @@ public sealed class CgDiagramNode : INotifyPropertyChanged
     bool _isHovered;
 
     /// <summary>
-    /// This property tracks transient hover highlighting driven by pointer position over the node chrome.
+    /// This property indicates hover highlight while the pointer is over the node.
     /// </summary>
     public bool IsHovered
     {
@@ -129,8 +138,9 @@ public sealed class CgDiagramNode : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// This method raises <see cref="PropertyChanged"/> for the calling property when values change.
+    /// This method raises <see cref="PropertyChanged"/> when a property value changes.
     /// </summary>
+    /// <param name="propertyName">The name of the property that changed.</param>
     void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

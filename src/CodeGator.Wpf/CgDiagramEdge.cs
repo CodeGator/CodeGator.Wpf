@@ -4,13 +4,16 @@ using System.Runtime.CompilerServices;
 namespace CodeGator.Wpf;
 
 /// <summary>
-/// This class represents a directed link between two diagram nodes, identified by their endpoint ids.
+/// This class represents a directed link between two diagram nodes by endpoint ids.
 /// </summary>
 public sealed class CgDiagramEdge : INotifyPropertyChanged
 {
     /// <summary>
-    /// This method creates an edge from one node id to another with an optional relationship label.
+    /// This constructor initializes a new instance of the CgDiagramEdge class.
     /// </summary>
+    /// <param name="fromId">The source node id for the directed relationship.</param>
+    /// <param name="toId">The target node id for the directed relationship.</param>
+    /// <param name="label">Optional text rendered along the connector.</param>
     public CgDiagramEdge(string fromId, string toId, string? label = null)
     {
         FromId = fromId;
@@ -36,7 +39,7 @@ public sealed class CgDiagramEdge : INotifyPropertyChanged
     bool _isSelected;
 
     /// <summary>
-    /// This property tracks whether the edge is the active selection in the diagram surface.
+    /// This property indicates whether the edge is selected on the diagram surface.
     /// </summary>
     public bool IsSelected
     {
@@ -52,7 +55,7 @@ public sealed class CgDiagramEdge : INotifyPropertyChanged
     bool _isHovered;
 
     /// <summary>
-    /// This property tracks transient hover highlighting when the pointer moves over the edge hit target.
+    /// This property indicates hover when the pointer is over the edge hit target.
     /// </summary>
     public bool IsHovered
     {
@@ -66,13 +69,14 @@ public sealed class CgDiagramEdge : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// This event is raised when a bindable property on the edge changes for MVVM consumers.
+    /// This event fires when a bindable property on the edge changes.
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
-    /// This method raises <see cref="PropertyChanged"/> for the calling property when values change.
+    /// This method raises <see cref="PropertyChanged"/> when a property value changes.
     /// </summary>
+    /// <param name="propertyName">The name of the property that changed.</param>
     void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

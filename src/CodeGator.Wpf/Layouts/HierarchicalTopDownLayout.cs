@@ -4,13 +4,11 @@ using CodeGator.Wpf;
 namespace CodeGator.Wpf.Layouts;
 
 /// <summary>
-/// This class lays out nodes in breadth-first layers, advancing vertically with ordered rows.
+/// This class lays out breadth-first layers with ordered rows downward.
 /// </summary>
 internal sealed class HierarchicalTopDownLayout : ICgDiagramLayout
 {
-    /// <summary>
-    /// This method calculates a top-left position in content space for every node using vertical hierarchical layers.
-    /// </summary>
+    /// <inheritdoc />
     public IReadOnlyDictionary<string, Point> Compute(IReadOnlyList<CgDiagramNode> nodes, IReadOnlyList<CgDiagramEdge> edges, CgDiagramLayoutOptions options)
     {
         var result = new Dictionary<string, Point>(StringComparer.Ordinal);
@@ -41,7 +39,7 @@ internal sealed class HierarchicalTopDownLayout : ICgDiagramLayout
     }
 
     /// <summary>
-    /// This method translates all positions so the minimum x and y coordinates are non-negative.
+    /// This method shifts positions so the minimum x and y values are non-negative.
     /// </summary>
     static void NormalizeToPositive(Dictionary<string, Point> map)
     {
