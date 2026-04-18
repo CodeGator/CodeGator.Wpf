@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -249,30 +250,34 @@ public sealed class CgDiagram : Control
     }
 
     /// <summary>
-    /// This property is the fallback layout kind for <see cref="ApplyLayout"/> calls.
+    /// This property is the fallback layout id for <see cref="ApplyLayout"/> calls.
     /// </summary>
-    public CgDiagramLayoutKind Layout
+    /// <remarks>
+    /// Use values from <see cref="CgDiagramLayoutIds"/> or ids registered with
+    /// <see cref="CgDiagramLayouts.Register"/>.
+    /// </remarks>
+    public string LayoutId
     {
-        get => (CgDiagramLayoutKind)GetValue(LayoutProperty);
-        set => SetValue(LayoutProperty, value);
+        get => (string)GetValue(LayoutIdProperty);
+        set => SetValue(LayoutIdProperty, value);
     }
 
     /// <summary>
-    /// This property identifies the <see cref="Layout"/> dependency property.
+    /// This property identifies the <see cref="LayoutId"/> dependency property.
     /// </summary>
-    public static readonly DependencyProperty LayoutProperty =
+    public static readonly DependencyProperty LayoutIdProperty =
         DependencyProperty.Register(
-            nameof(Layout),
-            typeof(CgDiagramLayoutKind),
+            nameof(LayoutId),
+            typeof(string),
             typeof(CgDiagram),
-            new PropertyMetadata(CgDiagramLayoutKind.HierarchicalTopDown));
+            new PropertyMetadata(CgDiagramLayoutIds.HierarchicalTopDown));
 
     /// <summary>
     /// This method runs a layout pass on nodes and refreshes connector geometry.
     /// </summary>
-    /// <param name="kind">Optional strategy; defaults to <see cref="Layout"/>.</param>
-    /// <param name="layout">Optional custom algorithm; defaults to a built-in for the resolved kind.</param>
-    public void ApplyLayout(CgDiagramLayoutKind? kind = null, ICgDiagramLayout? layout = null)
+    /// <param name="layoutId">Optional strategy id; defaults to <see cref="LayoutId"/>.</param>
+    /// <param name="layout">Optional custom algorithm; defaults to <see cref="CgDiagramLayouts.Resolve"/>.</param>
+    public void ApplyLayout(string? layoutId = null, ICgDiagramLayout? layout = null)
     {
         var nodes = (Nodes as IEnumerable)?.OfType<CgDiagramNode>().ToList() ?? new List<CgDiagramNode>();
         var edges = (Edges as IEnumerable)?.OfType<CgDiagramEdge>().ToList() ?? new List<CgDiagramEdge>();
@@ -281,8 +286,8 @@ public sealed class CgDiagram : Control
             return;
         }
 
-        var k = kind ?? Layout;
-        var algo = layout ?? CgDiagramBuiltinLayouts.For(k);
+        var id = layoutId ?? LayoutId;
+        var algo = layout ?? CgDiagramLayouts.Resolve(id);
         var options = new CgDiagramLayoutOptions(NodeSize);
         var positions = algo.Compute(nodes, edges, options);
         foreach (var n in nodes)
@@ -674,6 +679,13 @@ public sealed class CgDiagram : Control
             return;
         }
 
+        // PreviewMouseDown tunnels before ScrollBar; otherwise empty-space handling marks
+        // Handled and captures the mouse, which prevents scrollbar thumb/track interaction.
+        if (IsOriginalSourceOnDiagramScrollChrome(e.OriginalSource as DependencyObject))
+        {
+            return;
+        }
+
         Focus();
 
         if (e.ChangedButton == MouseButton.Right)
@@ -849,6 +861,38 @@ public sealed class CgDiagram : Control
 
             e.Handled = true;
         }
+    }
+
+    /// <summary>
+    /// This method reports whether the hit target is on a <see cref="ScrollBar"/> that belongs
+    /// to the diagram template <c>PART_ScrollViewer</c>.
+    /// </summary>
+    bool IsOriginalSourceOnDiagramScrollChrome(DependencyObject? original)
+    {
+        if (_scrollViewer is null || original is null)
+        {
+            return false;
+        }
+
+        for (var d = original; d is not null; d = VisualTreeHelper.GetParent(d))
+        {
+            if (d is not ScrollBar sb)
+            {
+                continue;
+            }
+
+            for (var x = (DependencyObject?)sb; x is not null; x = VisualTreeHelper.GetParent(x))
+            {
+                if (ReferenceEquals(x, _scrollViewer))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -1330,8 +1374,13 @@ public sealed class CgDiagram : Control
         if (anyNodes)
         {
             var pad = ContentPadding;
-            var w = (maxX - minX) + pad.Left + pad.Right;
-            var h = (maxY - minY) + pad.Top + pad.Bottom;
+            // Scroll extent must cover absolute node coordinates from (0,0) of PART_ContentGrid.
+            // Using only (maxX - minX) underestimates width when minX > 0 (hierarchical layouts), so the
+            // ScrollViewer viewport matches the clipped area and scrollbars appear to do nothing.
+            var leftBound = Math.Min(0, minX);
+            var topBound = Math.Min(0, minY);
+            var w = maxX - leftBound + pad.Left + pad.Right;
+            var h = maxY - topBound + pad.Top + pad.Bottom;
             ContentWidth = Math.Max(0, w);
             ContentHeight = Math.Max(0, h);
         }

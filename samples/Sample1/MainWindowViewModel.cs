@@ -102,26 +102,26 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         }
     }
 
-    CgDiagramLayoutKind _layout = CgDiagramLayoutKind.HierarchicalTopDown;
+    string _layoutId = CgDiagramLayoutIds.HierarchicalTopDown;
 
     /// <summary>
-    /// This property stores the layout algorithm selected in the sample combo box binding.
+    /// This property stores the layout id selected in the sample combo box binding.
     /// </summary>
-    public CgDiagramLayoutKind Layout
+    public string LayoutId
     {
-        get => _layout;
+        get => _layoutId;
         set
         {
-            if (_layout == value) return;
-            _layout = value;
+            if (_layoutId == value) return;
+            _layoutId = value;
             OnPropertyChanged();
         }
     }
 
     /// <summary>
-    /// This property supplies enum values for populating the sample layout picker.
+    /// This property supplies built-in layout ids for populating the sample layout picker.
     /// </summary>
-    public Array AvailableLayouts { get; } = Enum.GetValues(typeof(CgDiagramLayoutKind));
+    public IReadOnlyList<string> AvailableLayouts { get; } = CgDiagramLayoutIds.All;
 
     /// <summary>
     /// This method restores zoom to one and resets pan offsets to the diagram origin.

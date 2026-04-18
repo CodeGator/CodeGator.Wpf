@@ -20,7 +20,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = _vm;
         _vm.LoadSampleGraph();
-        Diagram.ApplyLayout(_vm.Layout);
+        Diagram.ApplyLayout(_vm.LayoutId);
     }
 
     /// <summary>
@@ -49,17 +49,17 @@ public partial class MainWindow : Window
     void LoadSampleGraph_Click(object sender, RoutedEventArgs e)
     {
         _vm.LoadSampleGraph();
-        Diagram.ApplyLayout(_vm.Layout);
+        Diagram.ApplyLayout(_vm.LayoutId);
         _vm.LastEvent = "Loaded sample graph.";
     }
 
     /// <summary>
-    /// This method applies the newly chosen layout kind and updates the last-event status message.
+    /// This method applies the newly chosen layout id and updates the last-event status message.
     /// </summary>
     void Layout_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
-        Diagram.ApplyLayout(_vm.Layout);
-        _vm.LastEvent = $"Applied layout: {_vm.Layout}";
+        Diagram.ApplyLayout(_vm.LayoutId);
+        _vm.LastEvent = $"Applied layout: {_vm.LayoutId}";
     }
 
     /// <summary>

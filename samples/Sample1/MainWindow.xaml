@@ -49,7 +49,7 @@
                     <TextBlock Text="Layout" Foreground="#F0F0F2" VerticalAlignment="Center" Margin="0,0,8,0" />
                     <ComboBox Width="220"
                               ItemsSource="{Binding AvailableLayouts}"
-                              SelectedItem="{Binding Layout}"
+                              SelectedItem="{Binding LayoutId}"
                               SelectionChanged="Layout_SelectionChanged"
                               Margin="0,0,14,0" />
 
@@ -72,7 +72,7 @@
                          ShowGrid="{Binding ShowGrid}"
                          GridOpacity="0.35"
                          EdgeThickness="1.25"
-                         Layout="{Binding Layout}"
+                         LayoutId="{Binding LayoutId}"
                          NodeClick="Diagram_NodeClick"
                          NodeRightClick="Diagram_NodeRightClick"
                          EdgeClick="Diagram_EdgeClick"

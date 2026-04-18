@@ -32,7 +32,7 @@ public sealed class DiagramLayoutAlgorithmTests
             new("b", "c"),
         };
 
-        var positions = CgDiagramBuiltinLayouts.For(CgDiagramLayoutKind.HierarchicalTopDown)
+        var positions = CgDiagramLayouts.Resolve(CgDiagramLayoutIds.HierarchicalTopDown)
             .Compute(nodes, edges, Options);
 
         Assert.Equal(3, positions.Count);
@@ -59,7 +59,7 @@ public sealed class DiagramLayoutAlgorithmTests
             new("b", "c"),
         };
 
-        var positions = CgDiagramBuiltinLayouts.For(CgDiagramLayoutKind.HierarchicalLeftToRight)
+        var positions = CgDiagramLayouts.Resolve(CgDiagramLayoutIds.HierarchicalLeftToRight)
             .Compute(nodes, edges, Options);
 
         Assert.Equal(3, positions.Count);
@@ -80,7 +80,7 @@ public sealed class DiagramLayoutAlgorithmTests
             new("y1", "Y1") { SwimlaneId = "LaneB" },
         };
 
-        var positions = CgDiagramBuiltinLayouts.For(CgDiagramLayoutKind.Swimlanes)
+        var positions = CgDiagramLayouts.Resolve(CgDiagramLayoutIds.Swimlanes)
             .Compute(nodes, [], Options);
 
         Assert.Equal(2, positions.Count);
@@ -99,7 +99,7 @@ public sealed class DiagramLayoutAlgorithmTests
             new("n2", "N2"),
         };
 
-        var positions = CgDiagramBuiltinLayouts.For(CgDiagramLayoutKind.Swimlanes)
+        var positions = CgDiagramLayouts.Resolve(CgDiagramLayoutIds.Swimlanes)
             .Compute(nodes, [], Options);
 
         Assert.Equal(2, positions.Count);
@@ -120,7 +120,7 @@ public sealed class DiagramLayoutAlgorithmTests
             new("z", "Z"),
         };
 
-        var positions = CgDiagramBuiltinLayouts.For(CgDiagramLayoutKind.CircularRing)
+        var positions = CgDiagramLayouts.Resolve(CgDiagramLayoutIds.CircularRing)
             .Compute(nodes, [], Options);
 
         Assert.Equal(4, positions.Count);
@@ -140,7 +140,7 @@ public sealed class DiagramLayoutAlgorithmTests
     {
         var nodes = new List<CgDiagramNode> { new("root", "Root") };
 
-        var positions = CgDiagramBuiltinLayouts.For(CgDiagramLayoutKind.Radial)
+        var positions = CgDiagramLayouts.Resolve(CgDiagramLayoutIds.Radial)
             .Compute(nodes, [], Options);
 
         Assert.Single(positions);
@@ -163,7 +163,7 @@ public sealed class DiagramLayoutAlgorithmTests
         var edges = new List<CgDiagramEdge> { new("a", "b"), new("b", "c") };
         var opts = new CgDiagramLayoutOptions(new Size(100, 50), 80, 60, forceIterations: 120, forceSeed: 7);
 
-        var layout = CgDiagramBuiltinLayouts.For(CgDiagramLayoutKind.ForceDirected);
+        var layout = CgDiagramLayouts.Resolve(CgDiagramLayoutIds.ForceDirected);
         var first = layout.Compute(nodes, edges, opts);
         var second = layout.Compute(nodes, edges, opts);
 
@@ -181,9 +181,9 @@ public sealed class DiagramLayoutAlgorithmTests
     public void Each_layout_returns_empty_for_empty_node_list()
     {
         var opts = Options;
-        foreach (CgDiagramLayoutKind kind in Enum.GetValues<CgDiagramLayoutKind>())
+        foreach (var id in CgDiagramLayoutIds.All)
         {
-            var positions = CgDiagramBuiltinLayouts.For(kind).Compute([], [], opts);
+            var positions = CgDiagramLayouts.Resolve(id).Compute([], [], opts);
             Assert.Empty(positions);
         }
     }
