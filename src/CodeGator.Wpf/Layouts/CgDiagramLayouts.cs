@@ -3,8 +3,7 @@ using System.Collections.Concurrent;
 namespace CodeGator.Wpf.Layouts;
 
 /// <summary>
-/// This class resolves <see cref="ICgDiagramLayout"/> instances from string layout ids and supports
-/// application-defined registrations.
+/// This class resolves layout algorithms from string ids and supports registration.
 /// </summary>
 public static class CgDiagramLayouts
 {
@@ -14,13 +13,12 @@ public static class CgDiagramLayouts
             [CgDiagramLayoutIds.HierarchicalTopDown] = () => new HierarchicalTopDownLayout(),
             [CgDiagramLayoutIds.HierarchicalLeftToRight] = () => new HierarchicalLeftToRightLayout(),
             [CgDiagramLayoutIds.Radial] = () => new RadialLayout(),
-            [CgDiagramLayoutIds.ForceDirected] = () => new ForceDirectedLayout(),
             [CgDiagramLayoutIds.Swimlanes] = () => new SwimlaneLayout(),
             [CgDiagramLayoutIds.CircularRing] = () => new CircularRingLayout(),
         };
 
     /// <summary>
-    /// This method registers a layout factory under <paramref name="layoutId"/> for the process.
+    /// This method registers a layout factory for <paramref name="layoutId"/>.
     /// </summary>
     /// <param name="layoutId">The non-empty id callers pass to <see cref="Resolve"/> or diagram APIs.</param>
     /// <param name="factory">The factory that creates a fresh layout instance for each resolve.</param>
@@ -41,7 +39,7 @@ public static class CgDiagramLayouts
     }
 
     /// <summary>
-    /// This method returns a new layout instance for the given <paramref name="layoutId"/>.
+    /// This method creates a layout instance for <paramref name="layoutId"/>.
     /// </summary>
     /// <param name="layoutId">The registered layout identifier.</param>
     /// <returns>A new <see cref="ICgDiagramLayout"/> from the registered factory.</returns>

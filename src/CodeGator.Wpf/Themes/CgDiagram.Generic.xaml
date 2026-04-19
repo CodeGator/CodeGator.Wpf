@@ -1,0 +1,308 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:CodeGator.Wpf"
+                    xmlns:svg="clr-namespace:SharpVectors.Converters;assembly=SharpVectors.Converters.Wpf"
+                    xmlns:conv="clr-namespace:CodeGator.Wpf.Converters">
+
+    <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    <conv:CgSvgSourceToUriConverter x:Key="SvgSourceToUri" />
+    <conv:CgPathDataToGeometryConverter x:Key="PathDataToGeometry" />
+    <conv:CircleGlyphPartVisibilityConverter x:Key="CgDiagram_CircleGlyphPartVis" />
+    <conv:CircleGlyphSvgFileSourceConverter x:Key="CgDiagram_CircleGlyphSvgFileSource" />
+    <conv:CircleGlyphPathGeometryConverter x:Key="CgDiagram_CircleGlyphPathGeometry" />
+    <conv:CircleGlyphBitmapSourceConverter x:Key="CgDiagram_CircleGlyphBitmapSourceGated" />
+    <conv:CircleGlyphTextOnlyConverter x:Key="CgDiagram_CircleGlyphTextOnly" />
+    <conv:CgDiagramNodeCircleClipConverter x:Key="CgDiagram_NodeCircleClip" />
+    <conv:CgDiagramCircleInscribedSquareConverter x:Key="CgDiagram_InscribedSquareMax" />
+
+    <Style TargetType="{x:Type local:CgDiagram}">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="ShowGrid" Value="False" />
+        <Setter Property="NodeSize" Value="110,140" />
+        <Setter Property="ContentPadding" Value="40" />
+        <Setter Property="EdgeStroke">
+            <Setter.Value>
+                <SolidColorBrush Color="#FF6E6E76" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="GridBrush">
+            <Setter.Value>
+                <DrawingBrush TileMode="Tile"
+                              Viewport="0,0,40,40"
+                              ViewportUnits="Absolute"
+                              Viewbox="0,0,40,40"
+                              ViewboxUnits="Absolute">
+                    <DrawingBrush.Drawing>
+                        <DrawingGroup>
+                            <GeometryDrawing Brush="Transparent">
+                                <GeometryDrawing.Pen>
+                                    <Pen Brush="#22FFFFFF" Thickness="1" />
+                                </GeometryDrawing.Pen>
+                                <GeometryDrawing.Geometry>
+                                    <GeometryGroup>
+                                        <LineGeometry StartPoint="40,0" EndPoint="40,40" />
+                                        <LineGeometry StartPoint="0,40" EndPoint="40,40" />
+                                    </GeometryGroup>
+                                </GeometryDrawing.Geometry>
+                            </GeometryDrawing>
+                        </DrawingGroup>
+                    </DrawingBrush.Drawing>
+                </DrawingBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="NodeTemplate">
+            <Setter.Value>
+                <DataTemplate DataType="{x:Type local:CgDiagramNode}">
+                    <StackPanel Width="{Binding Width}"
+                                Height="{Binding Height}"
+                                Orientation="Vertical"
+                                SnapsToDevicePixels="True">
+
+                        <Grid Width="{Binding Width}" Height="{Binding Width}">
+                            <Grid.Clip>
+                                <Binding Path="Width" Converter="{StaticResource CgDiagram_NodeCircleClip}" />
+                            </Grid.Clip>
+                            <Ellipse x:Name="CircleChrome"
+                                     Width="{Binding Width}"
+                                     Height="{Binding Width}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Top"
+                                     Fill="{Binding NodeChromeFill, RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}}"
+                                     Stroke="{Binding NodeChromeStroke, RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}}"
+                                     StrokeThickness="{Binding NodeChromeStrokeThickness, RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}}" />
+                            <Grid Margin="8"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  IsHitTestVisible="False">
+                                <Viewbox x:Name="ForceSvgPathNode"
+                                         Visibility="Collapsed"
+                                         Stretch="Uniform"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         MaxWidth="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}"
+                                         MaxHeight="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}">
+                                    <Grid Width="100" Height="100">
+                                        <Path Data="{Binding SvgPathData, Converter={StaticResource PathDataToGeometry}}"
+                                              Fill="Transparent"
+                                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}}"
+                                              StrokeThickness="1.25"
+                                              Stretch="Uniform"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                                    </Grid>
+                                </Viewbox>
+                                <Viewbox x:Name="ForceSvgFileNode"
+                                         Visibility="Collapsed"
+                                         Stretch="Uniform"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         MinWidth="1"
+                                         MinHeight="1"
+                                         MaxWidth="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}"
+                                         MaxHeight="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}">
+                                    <svg:SvgCanvas HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   MinWidth="1"
+                                                   MinHeight="1"
+                                                   AutoSize="True"
+                                                   Source="{Binding SvgSource, Converter={StaticResource SvgSourceToUri}}" />
+                                </Viewbox>
+                                <Grid x:Name="ForceGlyphHost"
+                                      Visibility="Visible"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch">
+                                    <Grid.RenderTransform>
+                                        <TranslateTransform X="{Binding CircleGlyphOffset.X}"
+                                                            Y="{Binding CircleGlyphOffset.Y}" />
+                                    </Grid.RenderTransform>
+                                    <TextBlock TextAlignment="Center"
+                                               TextWrapping="Wrap"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxHeight="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               FontSize="11"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}}">
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource CgDiagram_CircleGlyphTextOnly}">
+                                                <Binding Path="CircleGlyphKind" />
+                                                <Binding Path="CircleGlyph" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                        <TextBlock.Visibility>
+                                            <MultiBinding Converter="{StaticResource CgDiagram_CircleGlyphPartVis}" ConverterParameter="Text">
+                                                <Binding Path="CircleGlyphKind" />
+                                                <Binding Path="CircleGlyph" />
+                                            </MultiBinding>
+                                        </TextBlock.Visibility>
+                                    </TextBlock>
+                                    <Viewbox Stretch="Uniform"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             MinWidth="1"
+                                             MinHeight="1"
+                                             MaxWidth="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}"
+                                             MaxHeight="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}">
+                                        <Viewbox.Visibility>
+                                            <MultiBinding Converter="{StaticResource CgDiagram_CircleGlyphPartVis}" ConverterParameter="SvgPathData">
+                                                <Binding Path="CircleGlyphKind" />
+                                                <Binding Path="CircleGlyph" />
+                                            </MultiBinding>
+                                        </Viewbox.Visibility>
+                                        <Grid Width="100" Height="100">
+                                            <Path Stretch="Uniform"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}}"
+                                                  Fill="Transparent"
+                                                  StrokeThickness="1.25">
+                                                <Path.Data>
+                                                    <MultiBinding Converter="{StaticResource CgDiagram_CircleGlyphPathGeometry}"
+                                                                  ConverterParameter="100,1.25">
+                                                        <Binding Path="CircleGlyphKind" />
+                                                        <Binding Path="CircleGlyph" />
+                                                    </MultiBinding>
+                                                </Path.Data>
+                                            </Path>
+                                        </Grid>
+                                    </Viewbox>
+                                    <Viewbox Stretch="Uniform"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             MinWidth="1"
+                                             MinHeight="1"
+                                             MaxWidth="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}"
+                                             MaxHeight="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}">
+                                        <Viewbox.Visibility>
+                                            <MultiBinding Converter="{StaticResource CgDiagram_CircleGlyphPartVis}" ConverterParameter="SvgFile">
+                                                <Binding Path="CircleGlyphKind" />
+                                                <Binding Path="CircleGlyph" />
+                                            </MultiBinding>
+                                        </Viewbox.Visibility>
+                                        <svg:SvgCanvas HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       MinWidth="1"
+                                                       MinHeight="1"
+                                                       AutoSize="True">
+                                            <svg:SvgCanvas.Source>
+                                                <MultiBinding Converter="{StaticResource CgDiagram_CircleGlyphSvgFileSource}">
+                                                    <Binding Path="CircleGlyphKind" />
+                                                    <Binding Path="CircleGlyph" />
+                                                </MultiBinding>
+                                            </svg:SvgCanvas.Source>
+                                        </svg:SvgCanvas>
+                                    </Viewbox>
+                                    <Image Stretch="Uniform"
+                                           MaxWidth="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}"
+                                           MaxHeight="{Binding Width, Converter={StaticResource CgDiagram_InscribedSquareMax}}"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center">
+                                        <Image.Source>
+                                            <MultiBinding Converter="{StaticResource CgDiagram_CircleGlyphBitmapSourceGated}">
+                                                <Binding Path="CircleGlyphKind" />
+                                                <Binding Path="CircleGlyph" />
+                                            </MultiBinding>
+                                        </Image.Source>
+                                        <Image.Visibility>
+                                            <MultiBinding Converter="{StaticResource CgDiagram_CircleGlyphPartVis}" ConverterParameter="BitmapSource">
+                                                <Binding Path="CircleGlyphKind" />
+                                                <Binding Path="CircleGlyph" />
+                                            </MultiBinding>
+                                        </Image.Visibility>
+                                    </Image>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+
+                        <TextBlock Text="{Binding Label}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0"
+                                   Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}, Path=Foreground}" />
+                    </StackPanel>
+
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Presentation}" Value="{x:Static local:CgDiagramNodePresentation.Surface}">
+                            <Setter TargetName="ForceGlyphHost" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ForceSvgPathNode" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="ForceSvgFileNode" Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Presentation}" Value="{x:Static local:CgDiagramNodePresentation.SvgPath}">
+                            <Setter TargetName="ForceGlyphHost" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="ForceSvgPathNode" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ForceSvgFileNode" Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Presentation}" Value="{x:Static local:CgDiagramNodePresentation.SvgFile}">
+                            <Setter TargetName="ForceGlyphHost" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="ForceSvgPathNode" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="ForceSvgFileNode" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                            <Setter TargetName="CircleChrome" Property="Fill" Value="{Binding NodeSelectionFill, RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}}" />
+                            <Setter TargetName="CircleChrome" Property="Stroke" Value="{Binding NodeChromeStroke, RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}}" />
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:CgDiagram}">
+                    <Border Background="{TemplateBinding Background}"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Rectangle Fill="{TemplateBinding Background}" />
+                            <Rectangle Fill="{TemplateBinding GridBrush}"
+                                       Opacity="{TemplateBinding GridOpacity}"
+                                       Visibility="{Binding ShowGrid, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVis}}" />
+
+                            <ScrollViewer x:Name="PART_ScrollViewer"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto"
+                                          CanContentScroll="False"
+                                          Background="Transparent">
+                                <Grid x:Name="PART_ContentGrid"
+                                      Width="{Binding ContentWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Height="{Binding ContentHeight, RelativeSource={RelativeSource TemplatedParent}}"
+                                      UseLayoutRounding="True"
+                                      SnapsToDevicePixels="True">
+                                    <Grid.LayoutTransform>
+                                        <ScaleTransform ScaleX="{Binding Zoom, RelativeSource={RelativeSource TemplatedParent}}"
+                                                        ScaleY="{Binding Zoom, RelativeSource={RelativeSource TemplatedParent}}" />
+                                    </Grid.LayoutTransform>
+
+                                    <Grid.RenderTransform>
+                                        <TranslateTransform X="{Binding PanX, RelativeSource={RelativeSource TemplatedParent}}"
+                                                            Y="{Binding PanY, RelativeSource={RelativeSource TemplatedParent}}" />
+                                    </Grid.RenderTransform>
+
+                                    <Canvas x:Name="PART_EdgesCanvas" IsHitTestVisible="False" />
+
+                                    <ItemsControl x:Name="PART_NodesItems"
+                                                  ItemsSource="{TemplateBinding Nodes}"
+                                                  ItemTemplate="{TemplateBinding NodeTemplate}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style TargetType="ContentPresenter">
+                                                <Setter Property="Canvas.Left" Value="{Binding Position.X}" />
+                                                <Setter Property="Canvas.Top" Value="{Binding Position.Y}" />
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                    </ItemsControl>
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

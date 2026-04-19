@@ -66,15 +66,77 @@ public sealed class CgDiagramNode : INotifyPropertyChanged
     /// </remarks>
     public string? SvgSource { get; set; }
 
+    CgDiagramNodeCircleGlyphKind _circleGlyphKind = CgDiagramNodeCircleGlyphKind.None;
+    string? _circleGlyph;
+    Point _circleGlyphOffset;
+
+    /// <summary>
+    /// This property selects optional content inside the force-directed node circle.
+    /// </summary>
+    public CgDiagramNodeCircleGlyphKind CircleGlyphKind
+    {
+        get => _circleGlyphKind;
+        set
+        {
+            if (_circleGlyphKind == value) return;
+            _circleGlyphKind = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>
+    /// This property holds text, path data, SVG source, or bitmap URI for <see cref="CircleGlyphKind"/>.
+    /// </summary>
+    public string? CircleGlyph
+    {
+        get => _circleGlyph;
+        set
+        {
+            if (_circleGlyph == value) return;
+            _circleGlyph = value;
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>
+    /// This property applies an extra translation in device-independent pixels to circle-glyph content.
+    /// </summary>
+    /// <remarks>
+    /// Positive X moves right, positive Y moves down. Applied after template layout and automatic glyph
+    /// centering so callers can fine-tune text, path, SVG file, or bitmap glyphs inside the node circle.
+    /// </remarks>
+    public Point CircleGlyphOffset
+    {
+        get => _circleGlyphOffset;
+        set
+        {
+            if (_circleGlyphOffset == value) return;
+            _circleGlyphOffset = value;
+            OnPropertyChanged();
+        }
+    }
+
     /// <summary>
     /// This property sets explicit width and height for layout and hit-testing.
     /// </summary>
     public Size? Size { get; set; }
 
+    double _width = 168;
+    double _height = 88;
+
     /// <summary>
     /// This property sets width for layout and marquee when <see cref="Size"/> is null.
     /// </summary>
-    public double Width { get; set; } = 168;
+    public double Width
+    {
+        get => _width;
+        set
+        {
+            if (_width == value) return;
+            _width = value;
+            OnPropertyChanged();
+        }
+    }
 
     /// <summary>
     /// This property sets height for layout and marquee if <see cref="Size"/> is null.
@@ -82,7 +144,16 @@ public sealed class CgDiagramNode : INotifyPropertyChanged
     /// <remarks>
     /// The default fits a title plus wrapped description for surface nodes without clipping.
     /// </remarks>
-    public double Height { get; set; } = 88;
+    public double Height
+    {
+        get => _height;
+        set
+        {
+            if (_height == value) return;
+            _height = value;
+            OnPropertyChanged();
+        }
+    }
 
     Point _position;
 

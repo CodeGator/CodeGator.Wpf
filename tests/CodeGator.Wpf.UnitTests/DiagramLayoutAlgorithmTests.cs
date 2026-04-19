@@ -149,32 +149,6 @@ public sealed class DiagramLayoutAlgorithmTests
     }
 
     /// <summary>
-    /// This method asserts repeatable force-directed output when seed and iteration budgets match.
-    /// </summary>
-    [Fact]
-    public void ForceDirected_is_deterministic_for_same_seed_and_iterations()
-    {
-        var nodes = new List<CgDiagramNode>
-        {
-            new("a", "A"),
-            new("b", "B"),
-            new("c", "C"),
-        };
-        var edges = new List<CgDiagramEdge> { new("a", "b"), new("b", "c") };
-        var opts = new CgDiagramLayoutOptions(new Size(100, 50), 80, 60, forceIterations: 120, forceSeed: 7);
-
-        var layout = CgDiagramLayouts.Resolve(CgDiagramLayoutIds.ForceDirected);
-        var first = layout.Compute(nodes, edges, opts);
-        var second = layout.Compute(nodes, edges, opts);
-
-        Assert.Equal(first.Count, second.Count);
-        foreach (var id in first.Keys)
-        {
-            Assert.Equal(first[id], second[id]);
-        }
-    }
-
-    /// <summary>
     /// This method ensures every built-in layout returns an empty map when no nodes are provided.
     /// </summary>
     [Fact]

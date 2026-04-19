@@ -15,7 +15,6 @@ public sealed class CgDiagramLayoutsTests
         CgDiagramLayoutIds.HierarchicalTopDown,
         CgDiagramLayoutIds.HierarchicalLeftToRight,
         CgDiagramLayoutIds.Radial,
-        CgDiagramLayoutIds.ForceDirected,
         CgDiagramLayoutIds.Swimlanes,
         CgDiagramLayoutIds.CircularRing,
     };

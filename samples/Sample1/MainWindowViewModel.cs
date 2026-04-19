@@ -3,179 +3,205 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using CodeGator.Wpf;
-using CodeGator.Wpf.Layouts;
 
 namespace Sample1;
 
 /// <summary>
-/// This class is the sample application's view model for diagram nodes, edges, zoom, and layout selection.
+/// This class is the sample application's view model for diagram nodes, edges, zoom, and camera state.
 /// </summary>
 public sealed class MainWindowViewModel : INotifyPropertyChanged
 {
     /// <summary>
-    /// This property exposes the sample diagram nodes bound to the <see cref="CgDiagram"/> control.
+    /// This property exposes nodes bound to the <see cref="CgDiagram"/>.
     /// </summary>
-    public ObservableCollection<CgDiagramNode> Nodes { get; } = new();
+    public ObservableCollection<CgDiagramNode> NodesForce { get; } = new();
 
     /// <summary>
-    /// This property exposes the sample edges that connect nodes in the demonstration graph.
+    /// This property exposes edges bound to the <see cref="CgDiagram"/>.
     /// </summary>
-    public ObservableCollection<CgDiagramEdge> Edges { get; } = new();
+    public ObservableCollection<CgDiagramEdge> EdgesForce { get; } = new();
 
-    double _zoom = 1.0;
+    double _zoomForce = 1.0;
 
     /// <summary>
-    /// This property mirrors the diagram zoom factor for binder diagnostics in the sample UI.
+    /// This property mirrors zoom for the force-directed diagram.
     /// </summary>
-    public double Zoom
+    public double ZoomForce
     {
-        get => _zoom;
+        get => _zoomForce;
         set
         {
-            if (Math.Abs(_zoom - value) < 0.0001) return;
-            _zoom = value;
+            if (Math.Abs(_zoomForce - value) < 0.0001) return;
+            _zoomForce = value;
             OnPropertyChanged();
         }
     }
 
-    double _panX;
+    double _panXForce;
 
     /// <summary>
-    /// This property mirrors horizontal pan translation applied to the diagram surface.
+    /// This property mirrors horizontal pan for the force-directed diagram.
     /// </summary>
-    public double PanX
+    public double PanXForce
     {
-        get => _panX;
+        get => _panXForce;
         set
         {
-            if (Math.Abs(_panX - value) < 0.0001) return;
-            _panX = value;
+            if (Math.Abs(_panXForce - value) < 0.0001) return;
+            _panXForce = value;
             OnPropertyChanged();
         }
     }
 
-    double _panY;
+    double _panYForce;
 
     /// <summary>
-    /// This property mirrors vertical pan translation applied to the diagram surface.
+    /// This property mirrors vertical pan for the force-directed diagram.
     /// </summary>
-    public double PanY
+    public double PanYForce
     {
-        get => _panY;
+        get => _panYForce;
         set
         {
-            if (Math.Abs(_panY - value) < 0.0001) return;
-            _panY = value;
+            if (Math.Abs(_panYForce - value) < 0.0001) return;
+            _panYForce = value;
             OnPropertyChanged();
         }
     }
 
-    bool _showGrid = true;
+    string _forceLastEvent = "";
 
     /// <summary>
-    /// This property toggles diagram grid visibility in the sample chrome bindings.
+    /// This property surfaces status for the force-directed diagram (print, load).
     /// </summary>
-    public bool ShowGrid
+    public string ForceLastEvent
     {
-        get => _showGrid;
+        get => _forceLastEvent;
         set
         {
-            if (_showGrid == value) return;
-            _showGrid = value;
-            OnPropertyChanged();
-        }
-    }
-
-    string _lastEvent = "Click or right-click a node/connector…";
-
-    /// <summary>
-    /// This property surfaces the latest user interaction or command message for the status area.
-    /// </summary>
-    public string LastEvent
-    {
-        get => _lastEvent;
-        set
-        {
-            if (_lastEvent == value) return;
-            _lastEvent = value;
-            OnPropertyChanged();
-        }
-    }
-
-    string _layoutId = CgDiagramLayoutIds.HierarchicalTopDown;
-
-    /// <summary>
-    /// This property stores the layout id selected in the sample combo box binding.
-    /// </summary>
-    public string LayoutId
-    {
-        get => _layoutId;
-        set
-        {
-            if (_layoutId == value) return;
-            _layoutId = value;
+            if (_forceLastEvent == value) return;
+            _forceLastEvent = value;
             OnPropertyChanged();
         }
     }
 
     /// <summary>
-    /// This property supplies built-in layout ids for populating the sample layout picker.
+    /// This method restores zoom and pan for the force-directed diagram.
     /// </summary>
-    public IReadOnlyList<string> AvailableLayouts { get; } = CgDiagramLayoutIds.All;
-
-    /// <summary>
-    /// This method restores zoom to one and resets pan offsets to the diagram origin.
-    /// </summary>
-    public void ResetView()
+    public void ResetViewForce()
     {
-        Zoom = 1.0;
-        PanX = 0;
-        PanY = 0;
+        ZoomForce = 1.0;
+        PanXForce = 0;
+        PanYForce = 0;
     }
 
     /// <summary>
-    /// This method repopulates nodes and edges with the built-in demonstration workflow graph.
+    /// This method repopulates the force-directed graph with the built-in demonstration workflow graph.
     /// </summary>
-    public void LoadSampleGraph()
+    public void LoadSampleGraphForce()
     {
-        Nodes.Clear();
-        Edges.Clear();
+        NodesForce.Clear();
+        EdgesForce.Clear();
+        AddSampleGraph(NodesForce, EdgesForce);
+    }
 
-        Nodes.Add(new CgDiagramNode("n1", "Start", "Entry point") { Position = new Point(40, 60), SwimlaneId = "Intake" });
-        Nodes.Add(new CgDiagramNode("n2", "Validate", "Check inputs")
+    static void AddSampleGraph(ObservableCollection<CgDiagramNode> nodes, ObservableCollection<CgDiagramEdge> edges)
+    {
+        const double nw = 120;
+        const double nh = 152;
+
+        nodes.Add(new CgDiagramNode("n1", "Plain", "Surface, empty circle")
+        {
+            Position = new Point(40, 60),
+            SwimlaneId = "Intake",
+            Width = nw,
+            Height = nh
+        });
+        nodes.Add(new CgDiagramNode("n2", "Text", "Surface, text glyph")
         {
             Position = new Point(280, 60),
             SwimlaneId = "Intake",
-            Presentation = CgDiagramNodePresentation.SvgPath,
-            SvgPathData = "M 50,0 L 100,50 L 50,100 L 0,50 Z", // diamond
-            Width = 176,
-            Height = 120
+            Width = nw,
+            Height = nh
         });
-        Nodes.Add(new CgDiagramNode("n3", "Compute", "Run core algorithm")
+        nodes.Add(new CgDiagramNode("n3", "Path glyph", "Surface, SVG path glyph")
         {
             Position = new Point(520, 40),
             SwimlaneId = "Processing",
-            Presentation = CgDiagramNodePresentation.SvgFile,
-            SvgSource = "Assets/hex.svg",
-            Width = 200,
-            Height = 120
+            Width = nw,
+            Height = nh
         });
-        Nodes.Add(new CgDiagramNode("n4", "Persist", "Save results")
+        nodes.Add(new CgDiagramNode("n4", "SVG glyph", "Surface, SVG file glyph")
         {
             Position = new Point(520, 160),
             SwimlaneId = "Processing",
-            Presentation = CgDiagramNodePresentation.SvgPath,
-            SvgPathData = "M 10,0 H 90 A 10,10 0 0 1 100,10 V 90 A 10,10 0 0 1 90,100 H 10 A 10,10 0 0 1 0,90 V 10 A 10,10 0 0 1 10,0 Z",
-            Width = 200,
-            Height = 96
+            Width = nw,
+            Height = nh
         });
-        Nodes.Add(new CgDiagramNode("n5", "Done", "Return response") { Position = new Point(760, 100), SwimlaneId = "Output" });
+        nodes.Add(new CgDiagramNode("n5", "Full SVG", "SvgFile fills the circle")
+        {
+            Position = new Point(760, 100),
+            SwimlaneId = "Output",
+            Width = nw,
+            Height = nh
+        });
 
-        Edges.Add(new CgDiagramEdge("n1", "n2"));
-        Edges.Add(new CgDiagramEdge("n2", "n3"));
-        Edges.Add(new CgDiagramEdge("n2", "n4"));
-        Edges.Add(new CgDiagramEdge("n3", "n5"));
-        Edges.Add(new CgDiagramEdge("n4", "n5"));
+        foreach (var n in nodes)
+        {
+            ApplyBaselineSampleNodeGraphics(n);
+        }
+
+        edges.Add(new CgDiagramEdge("n1", "n2"));
+        edges.Add(new CgDiagramEdge("n2", "n3"));
+        edges.Add(new CgDiagramEdge("n2", "n4"));
+        edges.Add(new CgDiagramEdge("n3", "n5"));
+        edges.Add(new CgDiagramEdge("n4", "n5"));
+    }
+
+    /// <summary>
+    /// This method assigns the default five-node showcase: one distinct diagram node content style per id.
+    /// </summary>
+    static void ApplyBaselineSampleNodeGraphics(CgDiagramNode n)
+    {
+        n.CircleGlyphOffset = default;
+        switch (n.Id)
+        {
+            case "n1":
+                n.Presentation = CgDiagramNodePresentation.Surface;
+                n.SvgPathData = null;
+                n.SvgSource = null;
+                n.CircleGlyphKind = CgDiagramNodeCircleGlyphKind.None;
+                n.CircleGlyph = null;
+                break;
+            case "n2":
+                n.Presentation = CgDiagramNodePresentation.Surface;
+                n.SvgPathData = null;
+                n.SvgSource = null;
+                n.CircleGlyphKind = CgDiagramNodeCircleGlyphKind.Text;
+                n.CircleGlyph = "Aa";
+                break;
+            case "n3":
+                n.Presentation = CgDiagramNodePresentation.Surface;
+                n.SvgPathData = null;
+                n.SvgSource = null;
+                n.CircleGlyphKind = CgDiagramNodeCircleGlyphKind.SvgPathData;
+                n.CircleGlyph = "M 50,18 L 82,82 L 18,82 Z";
+                break;
+            case "n4":
+                n.Presentation = CgDiagramNodePresentation.Surface;
+                n.SvgPathData = null;
+                n.SvgSource = null;
+                n.CircleGlyphKind = CgDiagramNodeCircleGlyphKind.SvgFile;
+                n.CircleGlyph = "Assets/hex.svg";
+                break;
+            case "n5":
+                n.Presentation = CgDiagramNodePresentation.SvgFile;
+                n.SvgPathData = null;
+                n.SvgSource = "Assets/windows_security_shield.svg";
+                n.CircleGlyphKind = CgDiagramNodeCircleGlyphKind.None;
+                n.CircleGlyph = null;
+                break;
+        }
     }
 
     /// <summary>
@@ -189,4 +215,3 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
-

@@ -1,12 +1,12 @@
 namespace CodeGator.Wpf.Layouts;
 
 /// <summary>
-/// This class defines stable string identifiers for built-in diagram layout algorithms.
+/// This class defines string ids for built-in diagram layout algorithms.
 /// </summary>
 /// <remarks>
-/// Pass these values to <see cref="CgDiagram.LayoutId"/>, <see cref="CgDiagram.ApplyLayout"/>, or
-/// <see cref="CgDiagramLayouts.Resolve"/>. Register additional ids at startup with
+/// Pass these values to <see cref="CgDiagramLayouts.Resolve"/> or register additional ids at startup with
 /// <see cref="CgDiagramLayouts.Register"/>.
+/// Interactive force-directed layout is provided by <see cref="CodeGator.Wpf.CgDiagram"/> instead of a layout id.
 /// </remarks>
 public static class CgDiagramLayoutIds
 {
@@ -26,13 +26,11 @@ public static class CgDiagramLayoutIds
     public const string Radial = "Radial";
 
     /// <summary>
-    /// This field identifies the iterative force-directed simulation layout.
+    /// This field identifies the swimlane layout keyed by swimlane id.
     /// </summary>
-    public const string ForceDirected = "ForceDirected";
-
-    /// <summary>
-    /// This field identifies the swimlane stacking layout by <see cref="CgDiagramNode.SwimlaneId"/>.
-    /// </summary>
+    /// <remarks>
+    /// Nodes use <see cref="CgDiagramNode.SwimlaneId"/> to assign lanes.
+    /// </remarks>
     public const string Swimlanes = "Swimlanes";
 
     /// <summary>
@@ -48,7 +46,6 @@ public static class CgDiagramLayoutIds
         HierarchicalTopDown,
         HierarchicalLeftToRight,
         Radial,
-        ForceDirected,
         Swimlanes,
         CircularRing,
     ];

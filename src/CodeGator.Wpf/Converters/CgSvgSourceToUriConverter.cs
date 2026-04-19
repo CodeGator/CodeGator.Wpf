@@ -8,18 +8,18 @@ namespace CodeGator.Wpf.Converters;
 /// This class resolves SVG source strings from bindings to paths or URIs.
 /// </summary>
 /// <remarks>
-/// Absolute URIs are returned as-is; relative paths are combined with the application base directory.
+/// Absolute URI strings become <see cref="Uri"/> instances; relative paths are combined with the application base directory.
 /// </remarks>
 public sealed class CgSvgSourceToUriConverter : IValueConverter
 {
     /// <summary>
-    /// This method resolves a bound SVG source string to a path or URI for loaders.
+    /// This method resolves a bound SVG source string to an absolute URI for loaders.
     /// </summary>
     /// <param name="value">The SVG path or URI string from the binding source.</param>
     /// <param name="targetType">The target type requested by the binding engine.</param>
     /// <param name="parameter">An optional converter parameter (unused).</param>
     /// <param name="culture">The culture for conversion (unused).</param>
-    /// <returns>A file path or URI string, or null when the value is empty.</returns>
+    /// <returns>An absolute <see cref="Uri"/> for SharpVectors loaders, or null when the value is empty.</returns>
     public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is not string s || string.IsNullOrWhiteSpace(s))
@@ -27,16 +27,14 @@ public sealed class CgSvgSourceToUriConverter : IValueConverter
             return null;
         }
 
-        // SharpVectors' SvgCanvas supports either absolute file paths or pack URIs
-        // via its Source property. For relative paths, resolve against app base dir.
         if (Uri.TryCreate(s, UriKind.Absolute, out var abs))
         {
-            return abs.IsFile ? abs.LocalPath : abs.ToString();
+            return abs;
         }
 
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         var combined = Path.Combine(baseDir, s.Replace('/', Path.DirectorySeparatorChar));
-        return combined;
+        return new Uri(combined, UriKind.Absolute);
     }
 
     /// <summary>

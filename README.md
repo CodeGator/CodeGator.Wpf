@@ -11,7 +11,7 @@
 This package contains WPF controls that are used by various CodeGator solutions.
 
 #### What controls are in the package?
-* CgDiagram - this control creates various types of diagrams.
+* CgDiagram - This control creates a force-directed interactive diagram (styled after the diagram on the Aspire dashboard).
 
 #### What platform(s) does it support?
 * .NET 10.x or higher
