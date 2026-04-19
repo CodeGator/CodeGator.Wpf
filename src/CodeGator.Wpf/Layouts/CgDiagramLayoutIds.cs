@@ -6,7 +6,8 @@ namespace CodeGator.Wpf.Layouts;
 /// <remarks>
 /// Pass these values to <see cref="CgDiagramLayouts.Resolve"/> or register additional ids at startup with
 /// <see cref="CgDiagramLayouts.Register"/>.
-/// Interactive force-directed layout is provided by <see cref="CodeGator.Wpf.CgDiagram"/> instead of a layout id.
+/// Use <see cref="ForceDirected"/> with <see cref="CodeGator.Wpf.CgDiagram"/> for the built-in simulation instead of
+/// <see cref="CgDiagramLayouts.Resolve"/>.
 /// </remarks>
 public static class CgDiagramLayoutIds
 {
@@ -39,8 +40,20 @@ public static class CgDiagramLayoutIds
     public const string CircularRing = "CircularRing";
 
     /// <summary>
+    /// This field identifies the interactive force-directed layout built into <see cref="CodeGator.Wpf.CgDiagram"/>.
+    /// </summary>
+    /// <remarks>
+    /// This id is not registered with <see cref="CgDiagramLayouts"/>; pass it to <see cref="CgDiagram.LayoutId"/>
+    /// or <see cref="CgDiagram.ApplyLayout"/> to run the internal simulation instead of a registered algorithm.
+    /// </remarks>
+    public const string ForceDirected = "ForceDirected";
+
+    /// <summary>
     /// This property lists every built-in layout id for pickers and tests.
     /// </summary>
+    /// <remarks>
+    /// Excludes <see cref="ForceDirected"/> because it is not resolved through <see cref="CgDiagramLayouts"/>.
+    /// </remarks>
     public static IReadOnlyList<string> All { get; } =
     [
         HierarchicalTopDown,

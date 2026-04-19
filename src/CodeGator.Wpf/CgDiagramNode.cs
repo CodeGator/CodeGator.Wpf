@@ -121,8 +121,8 @@ public sealed class CgDiagramNode : INotifyPropertyChanged
     /// </summary>
     public Size? Size { get; set; }
 
-    double _width = 168;
-    double _height = 88;
+    double _width = 110;
+    double _height = 140;
 
     /// <summary>
     /// This property sets width for layout and marquee when <see cref="Size"/> is null.

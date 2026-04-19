@@ -14,6 +14,7 @@
     <conv:CircleGlyphTextOnlyConverter x:Key="CgDiagram_CircleGlyphTextOnly" />
     <conv:CgDiagramNodeCircleClipConverter x:Key="CgDiagram_NodeCircleClip" />
     <conv:CgDiagramCircleInscribedSquareConverter x:Key="CgDiagram_InscribedSquareMax" />
+    <conv:CgDiagramLabelWrapHintConverter x:Key="CgDiagram_LabelWrapHint" />
 
     <Style TargetType="{x:Type local:CgDiagram}">
         <Setter Property="Background" Value="White" />
@@ -218,9 +219,12 @@
                             </Grid>
                         </Grid>
 
-                        <TextBlock Text="{Binding Label}"
+                        <TextBlock Text="{Binding Label, Converter={StaticResource CgDiagram_LabelWrapHint}}"
+                                   Width="{Binding Width}"
+                                   MaxWidth="{Binding Width}"
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"
+                                   TextTrimming="None"
                                    Margin="0,8,0,0"
                                    Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:CgDiagram}}, Path=Foreground}" />
                     </StackPanel>

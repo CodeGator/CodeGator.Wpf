@@ -24,7 +24,8 @@ internal static class CgForceDirectedNodeMetrics
         var size = n.Size ?? new Size(n.Width, n.Height);
         var w = size.Width;
         var h = size.Height;
-        var maxHead = Math.Max(48.0, h - TitleBandBelowCircle);
+        var titleReserve = Math.Min(TitleBandBelowCircle, h * 0.35);
+        var maxHead = Math.Max(4.0, h - titleReserve);
         return Math.Min(w, maxHead);
     }
 

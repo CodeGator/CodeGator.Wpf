@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 using System.Linq;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -67,6 +68,8 @@ public sealed class CgDiagram : Control
     CdForceDirectedSimulation? _sim;
     readonly DispatcherTimer _simulationTimer = new() { Interval = TimeSpan.FromMilliseconds(33) };
 
+    bool _staticLayoutMode;
+
     /// <summary>
     /// This field suppresses per-node edge refresh during batched simulation writes.
     /// </summary>
@@ -110,7 +113,7 @@ public sealed class CgDiagram : Control
     void OnDiagramLoaded(object sender, RoutedEventArgs e)
     {
         RefreshSubscriptionsAndEdges();
-        ResetSimulation();
+        ApplyLayout(LayoutId);
         _simulationTimer.Start();
     }
 
@@ -139,9 +142,14 @@ public sealed class CgDiagram : Control
             return;
         }
 
+        if (_staticLayoutMode)
+        {
+            return;
+        }
+
         if (_sim is null)
         {
-            ResetSimulation();
+            ApplyLayout(LayoutId);
             return;
         }
 
@@ -169,7 +177,17 @@ public sealed class CgDiagram : Control
     /// <summary>
     /// This method re-seeds the simulation from the graph and writes node positions.
     /// </summary>
-    public void ResetSimulation()
+    /// <remarks>
+    /// When <see cref="LayoutId"/> selects a registered <see cref="ICgDiagramLayout"/>, reapplies that layout;
+    /// otherwise restarts the built-in force-directed simulation.
+    /// </remarks>
+    public void ResetSimulation() => ApplyLayout(LayoutId);
+
+    /// <summary>
+    /// This method applies <see cref="LayoutId"/> or an explicit layout id to the current graph.
+    /// </summary>
+    /// <param name="layoutId">Optional override; when null or empty, <see cref="LayoutId"/> is used.</param>
+    public void ApplyLayout(string? layoutId = null)
     {
         if (!IsLoaded)
         {
@@ -177,25 +195,55 @@ public sealed class CgDiagram : Control
         }
 
         var nodes = (Nodes as IEnumerable)?.OfType<CgDiagramNode>().ToList() ?? new List<CgDiagramNode>();
-        var edges = (Edges as IEnumerable)?.OfType<CgDiagramEdge>().ToList() ?? new List<CgDiagramEdge>();
         if (nodes.Count == 0)
         {
             _sim = null;
+            _staticLayoutMode = false;
             RefreshEdges();
             return;
         }
 
-        _sim = new CdForceDirectedSimulation();
-        var options = new CgDiagramLayoutOptions(NodeSize);
+        var edges = (Edges as IEnumerable)?.OfType<CgDiagramEdge>().ToList() ?? new List<CgDiagramEdge>();
+        var id = string.IsNullOrWhiteSpace(layoutId) ? LayoutId : layoutId!;
+        if (IsBuiltInForceDirectedLayout(id))
+        {
+            _staticLayoutMode = false;
+            _sim = new CdForceDirectedSimulation();
+            var options = new CgDiagramLayoutOptions(NodeSize);
+            RunBatchedNodeWrites(() =>
+            {
+                _sim.Reset(nodes, edges, options);
+                _sim.Settle(nodes, options, 300, pinnedId: null);
+            });
+            RefreshEdges();
+            _scrollViewer?.ScrollToTop();
+            _scrollViewer?.ScrollToLeftEnd();
+            return;
+        }
+
+        _staticLayoutMode = true;
+        _sim = null;
+        var layout = CgDiagramLayouts.Resolve(id);
+        var staticOptions = new CgDiagramLayoutOptions(NodeSize);
+        var positions = layout.Compute(nodes, edges, staticOptions);
         RunBatchedNodeWrites(() =>
         {
-            _sim.Reset(nodes, edges, options);
-            _sim.Settle(nodes, options, 300, pinnedId: null);
+            foreach (var n in nodes)
+            {
+                if (positions.TryGetValue(n.Id, out var p))
+                {
+                    n.Position = p;
+                }
+            }
         });
         RefreshEdges();
         _scrollViewer?.ScrollToTop();
         _scrollViewer?.ScrollToLeftEnd();
     }
+
+    static bool IsBuiltInForceDirectedLayout(string layoutId) =>
+        string.IsNullOrWhiteSpace(layoutId) ||
+        string.Equals(layoutId, CgDiagramLayoutIds.ForceDirected, StringComparison.Ordinal);
 
     /// <summary>
     /// This method finds template parts and refreshes subscriptions and edge visuals.
@@ -209,7 +257,7 @@ public sealed class CgDiagram : Control
         RefreshSubscriptionsAndEdges();
         if (IsLoaded)
         {
-            ResetSimulation();
+            ApplyLayout(LayoutId);
         }
     }
 
@@ -317,7 +365,7 @@ public sealed class CgDiagram : Control
     void OnNodesChanged()
     {
         RefreshSubscriptionsAndEdges();
-        ResetSimulation();
+        ApplyLayout(LayoutId);
     }
 
     /// <summary>
@@ -340,12 +388,45 @@ public sealed class CgDiagram : Control
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, (d, _) => ((CgDiagram)d).OnEdgesChanged()));
 
     /// <summary>
+    /// This property selects the active layout algorithm or built-in force-directed mode.
+    /// </summary>
+    public string LayoutId
+    {
+        get => (string)GetValue(LayoutIdProperty);
+        set => SetValue(LayoutIdProperty, value);
+    }
+
+    /// <summary>
+    /// This property exposes <see cref="LayoutIdProperty"/>.
+    /// </summary>
+    public static readonly DependencyProperty LayoutIdProperty =
+        DependencyProperty.Register(
+            nameof(LayoutId),
+            typeof(string),
+            typeof(CgDiagram),
+            new FrameworkPropertyMetadata(
+                CgDiagramLayoutIds.ForceDirected,
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                (d, _) => ((CgDiagram)d).OnLayoutIdChanged()));
+
+    /// <summary>
+    /// This method reapplies layout when <see cref="LayoutId"/> changes at runtime.
+    /// </summary>
+    void OnLayoutIdChanged()
+    {
+        if (IsLoaded)
+        {
+            ApplyLayout();
+        }
+    }
+
+    /// <summary>
     /// This method refreshes hooks and edges when the edges collection changes.
     /// </summary>
     void OnEdgesChanged()
     {
         RefreshSubscriptionsAndEdges();
-        ResetSimulation();
+        ApplyLayout(LayoutId);
     }
 
     /// <summary>
@@ -663,7 +744,12 @@ public sealed class CgDiagram : Control
     /// This property exposes <see cref="NodeSizeProperty"/>.
     /// </summary>
     public static readonly DependencyProperty NodeSizeProperty =
-        DependencyProperty.Register(nameof(NodeSize), typeof(Size), typeof(CgDiagram), new PropertyMetadata(new Size(110, 140), (d, _) => ((CgDiagram)d).RefreshEdges()));
+        DependencyProperty.Register(nameof(NodeSize), typeof(Size), typeof(CgDiagram), new PropertyMetadata(new Size(110, 140), (d, _) =>
+        {
+            var diagram = (CgDiagram)d;
+            diagram.ApplyDiagramNodeSizeDefaults();
+            diagram.RefreshEdges();
+        }));
 
     /// <summary>
     /// This property pads measured bounds before computing scrollable width and height.
@@ -1149,8 +1235,78 @@ public sealed class CgDiagram : Control
         }
 
         HookCollections();
+        ApplyDiagramNodeSizeDefaults();
         HookNodePositionChanges();
         RefreshEdges();
+    }
+
+    void ApplyDiagramNodeSizeDefaults()
+    {
+        if (Nodes is null)
+        {
+            return;
+        }
+
+        var s = NodeSize;
+        if (s.Width <= 0 || s.Height <= 0)
+        {
+            return;
+        }
+
+        const double labelTopMargin = 8.0;
+        const double labelBottomPad = 4.0;
+
+        foreach (var obj in Nodes)
+        {
+            if (obj is not CgDiagramNode n || n.Size is not null)
+            {
+                continue;
+            }
+
+            n.Width = s.Width;
+            var headRowHeight = n.Width;
+            var labelHeight = MeasureNodeLabelHeight(n.Label, n.Width);
+            n.Height = Math.Max(s.Height, headRowHeight + labelTopMargin + labelHeight + labelBottomPad);
+        }
+    }
+
+    double MeasureNodeLabelHeight(string? label, double maxWidth)
+    {
+        if (string.IsNullOrWhiteSpace(label) || maxWidth <= 1.0)
+        {
+            return 0.0;
+        }
+
+        double pixelsPerDip = 1.0;
+        try
+        {
+            pixelsPerDip = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+        }
+        catch (InvalidOperationException)
+        {
+        }
+
+        var family = FontFamily ?? SystemFonts.MessageFontFamily;
+        var typeface = new Typeface(family, FontStyle, FontWeight, FontStretch);
+        var numberSubstitution = new NumberSubstitution(
+            NumberCultureSource.Text,
+            CultureInfo.CurrentCulture,
+            NumberSubstitutionMethod.AsCulture);
+        var hinted = CgDiagramLabelWrapFormatting.InsertLineBreakHints(label);
+        var formattedText = new FormattedText(
+            hinted,
+            CultureInfo.CurrentCulture,
+            FlowDirection,
+            typeface,
+            FontSize,
+            Brushes.Black,
+            numberSubstitution,
+            TextFormattingMode.Ideal,
+            pixelsPerDip);
+        formattedText.MaxTextWidth = maxWidth;
+        formattedText.Trimming = TextTrimming.None;
+        var lineSlack = FontSize * 0.35;
+        return Math.Ceiling(formattedText.Height + lineSlack);
     }
 
     /// <summary>
@@ -1190,6 +1346,7 @@ public sealed class CgDiagram : Control
     void OnNodesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         _lastHoverCenterNode = null;
+        ApplyDiagramNodeSizeDefaults();
         HookNodePositionChanges();
         RefreshEdges();
     }
